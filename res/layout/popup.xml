@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent">
+
+    <LinearLayout
+        android:id="@+id/popup_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" android:background="@drawable/blue_glow">
+
+        <LinearLayout android:orientation="vertical" android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/tracks" android:background="#00000000" android:gravity="left">
+            <TextView android:text="TextView" android:gravity="left" android:textSize="18dip" android:id="@+id/popup_wnd_header" android:layout_width="fill_parent" android:layout_height="wrap_content" android:textColor="#ffffffff" android:maxLines="1" android:paddingLeft="4sp" android:paddingRight="4sp"></TextView>
+
+            <LinearLayout
+                android:id="@+id/popup_header_divider"
+                android:layout_width="fill_parent"
+                android:layout_height="1sp"
+                android:orientation="vertical" android:layout_marginBottom="3sp" android:layout_marginTop="3sp">
+            </LinearLayout>
+
+        </LinearLayout>
+    </LinearLayout>
+
+</FrameLayout>

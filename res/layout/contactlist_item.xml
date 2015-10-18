@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="fill_parent"
+  android:gravity="center_vertical" android:layout_height="wrap_content" android:orientation="vertical" android:alwaysDrawnWithCache="false" android:animationCache="false">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:alwaysDrawnWithCache="false"
+        android:animationCache="false"
+        android:orientation="horizontal" >
+
+        <ImageView
+            android:id="@+id/contactlist_item_msg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawingCacheQuality="low"
+            android:paddingLeft="3sp" >
+        </ImageView>
+
+        <ImageView
+            android:id="@+id/contactlist_item_sts"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawingCacheQuality="low"
+            android:paddingLeft="3sp"
+            android:paddingRight="3sp"
+            android:src="@drawable/sts_online" >
+        </ImageView>
+
+        <ImageView
+            android:id="@+id/contactlist_item_ests"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawingCacheQuality="low"
+            android:src="@drawable/sts_online" >
+        </ImageView>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" >
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:alwaysDrawnWithCache="false"
+                    android:animationCache="false"
+                    android:gravity="center_vertical" android:layout_weight="1">
+
+                    <LinearLayout
+                        android:id="@+id/contact_list_item_group_line_1"
+                        android:layout_width="fill_parent"
+                        android:layout_height="1px"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginBottom="5sp"
+                        android:layout_marginLeft="10sp"
+                        android:layout_marginRight="10sp"
+                        android:layout_marginTop="5sp"
+                        android:alwaysDrawnWithCache="false"
+                        android:background="#ffb3e15b"
+                        android:orientation="vertical" android:layout_weight="1">
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/contactlist_item_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:clickable="false"
+                        android:ellipsize="marquee"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        android:singleLine="true"
+                        android:textColor="#ffffffff"
+                        android:textSize="18sp" />
+
+                    <LinearLayout
+                        android:id="@+id/contact_list_item_group_line_2"
+                        android:layout_width="fill_parent"
+                        android:layout_height="1px"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginBottom="5sp"
+                        android:layout_marginLeft="10sp"
+                        android:layout_marginRight="10sp"
+                        android:layout_marginTop="5sp"
+                        android:alwaysDrawnWithCache="false"
+                        android:background="#ffb3e15b"
+                        android:orientation="vertical" android:layout_weight="1">
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/contactlist_item_flags"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:layout_marginRight="5sp"
+                    android:alwaysDrawnWithCache="false"
+                    android:gravity="center_vertical" >
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/contactlist_item_tsts"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawingCacheQuality="low"
+                    android:paddingLeft="3sp"
+                    android:paddingRight="3sp"
+                    android:src="@drawable/sts_online" />
+
+                <ImageView
+                    android:id="@+id/contactlist_item_tasts"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawingCacheQuality="low"
+                    android:src="@drawable/sts_online" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/contactlist_item_addit_desc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2sp"
+                android:text="Additional status description" />
+
+        </LinearLayout>
+    </LinearLayout>
+    
+</LinearLayout>

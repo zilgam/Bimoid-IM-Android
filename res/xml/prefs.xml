@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+  xmlns:android="http://schemas.android.com/apk/res/android">
+	<ru.ivansuper.Preferences.LanguagePicker android:key="ms_select_language"/>
+    <PreferenceScreen android:key="ms_accounts"><intent android:action="ru.ivansuper.bimoidim.PROFILES"/>
+    
+</PreferenceScreen><PreferenceScreen android:key="ms_skins"><intent android:action="ru.ivansuper.bimoidim.SKINS"/></PreferenceScreen>
+    <PreferenceScreen android:key="ms_contactlist">
+        <CheckBoxPreference android:key="ms_groups" android:defaultValue="true"></CheckBoxPreference>
+        <CheckBoxPreference android:key="ms_offline" android:defaultValue="true"></CheckBoxPreference>
+        <CheckBoxPreference android:key="ms_show_addit_desc" android:defaultValue="false"></CheckBoxPreference>
+    </PreferenceScreen>
+    <PreferenceScreen android:key="ms_notify">
+        <CheckBoxPreference android:key="ms_vibro">
+            
+        </CheckBoxPreference><PreferenceCategory android:key="ms_snd_category"></PreferenceCategory><CheckBoxPreference android:key="ms_sounds" android:defaultValue="true"></CheckBoxPreference><CheckBoxPreference android:key="auth_a_s" android:defaultValue="true"></CheckBoxPreference>
+        <CheckBoxPreference android:key="auth_d_s" android:defaultValue="true"></CheckBoxPreference>
+        <CheckBoxPreference android:key="auth_r_s" android:defaultValue="true"></CheckBoxPreference>
+        
+        <CheckBoxPreference android:key="auth_re_s" android:defaultValue="true"></CheckBoxPreference><CheckBoxPreference android:key="inc_msg_s" android:title="Входящее сообщение" android:defaultValue="true"></CheckBoxPreference>
+        <CheckBoxPreference android:key="sent_s" android:defaultValue="true"></CheckBoxPreference><CheckBoxPreference android:key="info_s" android:defaultValue="true" android:title="Информация"></CheckBoxPreference>
+        <CheckBoxPreference android:key="svc_s" android:defaultValue="true"></CheckBoxPreference>
+        
+        <CheckBoxPreference android:key="in_s" android:defaultValue="true"></CheckBoxPreference>
+        <CheckBoxPreference android:key="out_s" android:defaultValue="true"></CheckBoxPreference>
+        <PreferenceCategory android:key="ms_bar_category">
+            
+        </PreferenceCategory>
+        <CheckBoxPreference android:key="ms_personal_notify" android:defaultValue="false"></CheckBoxPreference>
+        
+        
+        
+    </PreferenceScreen>
+    <PreferenceScreen android:key="ms_power">
+        
+        <CheckBoxPreference android:key="ms_wake_lock" android:defaultValue="false"></CheckBoxPreference><CheckBoxPreference android:defaultValue="true" android:key="ms_wifi_lock"></CheckBoxPreference>
+        
+    </PreferenceScreen><PreferenceScreen android:key="ms_antispam">
+        <CheckBoxPreference android:key="antispam_enabled" android:defaultValue="false"/>
+        <EditTextPreference android:defaultValue="[EN] Antispam: What is the biggest country in the world?_[RU] Антиспам: Самая большая по площади страна в мире?" android:key="antispam_question"/>
+        <EditTextPreference android:defaultValue="Russia, Россия" android:key="antispam_answer"/>
+        <EditTextPreference android:defaultValue="[EN] Thank you. Now you can send messages directly to my contact list._[RU] Спасибо. Теперь вы можете писать прямо мне." android:key="antispam_accepted_msg"/>
+        
+    </PreferenceScreen><PreferenceScreen android:key="ms_history">
+        <CheckBoxPreference android:key="ms_store_history" android:defaultValue="true"/>
+    </PreferenceScreen>
+    
+</PreferenceScreen>

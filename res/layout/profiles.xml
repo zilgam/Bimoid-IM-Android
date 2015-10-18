@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent">
+    <FrameLayout android:layout_width="fill_parent" android:layout_height="fill_parent">
+        <LinearLayout android:layout_width="fill_parent" android:layout_height="fill_parent" android:orientation="vertical" android:id="@+id/profiles_back">
+            <LinearLayout android:layout_height="wrap_content" android:orientation="vertical" android:id="@+id/header" android:layout_width="fill_parent" android:background="@drawable/chat_top_panel">
+                <TextView android:id="@+id/l1" android:layout_height="wrap_content" android:textSize="24sp" android:layout_margin="5sp" android:text="Доступные уч. записи:" android:layout_width="wrap_content" android:textColor="#ffffffff"></TextView>
+                <LinearLayout android:id="@+id/divider" android:layout_marginLeft="10sp" android:layout_width="fill_parent" android:background="#ffb3e15b" android:layout_marginTop="4sp" android:layout_height="1sp" android:orientation="vertical" android:layout_marginRight="10sp" android:layout_marginBottom="5sp"></LinearLayout>
+            </LinearLayout>
+            <ListView android:dividerHeight="1sp" android:id="@+id/profiles_list" android:layout_width="fill_parent" android:listSelector="@drawable/item_selected" android:layout_height="fill_parent" android:divider="#00000000" android:background="@drawable/profiles_and_ignore_back"></ListView>
+        </LinearLayout>
+    </FrameLayout>
+    
+</LinearLayout>

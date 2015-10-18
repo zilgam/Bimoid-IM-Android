@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" android:gravity="center">
+<LinearLayout android:layout_height="wrap_content" android:layout_width="wrap_content" android:padding="15sp" android:gravity="center_vertical" android:background="@drawable/blue_glow">
+    <ImageView android:src="@drawable/progress_arrows" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/launch_progress"></ImageView>
+    <TextView android:text="Загружаемся ..." android:padding="10sp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="24sp" android:textColor="#ff3a5a82" android:id="@+id/l1"></TextView>
+</LinearLayout>
+</LinearLayout>

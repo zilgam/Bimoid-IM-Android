@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+  android:layout_height="fill_parent" android:layout_width="fill_parent">
+    <LinearLayout android:orientation="vertical" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_weight="0" android:minWidth="256sp">
+        <TextView android:textSize="20sp" android:textColor="#ffffffff" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="Логин:" android:id="@+id/l1"></TextView>
+        <EditText android:layout_width="fill_parent" android:id="@+id/profile_dataview_id" android:layout_height="wrap_content" android:layout_weight="1" android:hint="Например user@bimoid.net"></EditText>
+        <TextView android:text="Пароль:" android:textSize="20sp" android:textColor="#ffffffff" android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/l2"></TextView>
+        <EditText android:inputType="textPassword" android:layout_width="fill_parent" android:id="@+id/profile_dataview_pass" android:layout_height="wrap_content" android:layout_weight="1"></EditText>
+    </LinearLayout>
+    
+</LinearLayout>

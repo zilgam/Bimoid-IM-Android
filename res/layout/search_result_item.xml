@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent" android:paddingTop="10sp" android:paddingBottom="10sp">
+    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginLeft="2sp" android:layout_marginRight="2sp">
+        <ImageView android:src="@drawable/sts_online" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/search_item_status"></ImageView>
+        <TextView android:text="TextView" android:layout_height="wrap_content" android:id="@+id/search_item_account" android:paddingLeft="5sp" android:textColor="#ffffffff" android:textSize="18sp" android:ellipsize="marquee" android:inputType="none" android:layout_width="fill_parent"></TextView>
+    </LinearLayout>
+    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="5sp" android:layout_marginBottom="5sp" android:layout_marginLeft="5sp" android:layout_marginRight="5sp">
+        <TextView android:text="TextView" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_weight="1" android:ellipsize="marquee" android:inputType="none" android:id="@+id/search_item_firstname" android:textColor="#ffc4e990"></TextView>
+        <TextView android:text="TextView" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_weight="1" android:inputType="none" android:id="@+id/search_item_lastname" android:textColor="#ffc4e990"></TextView>
+    </LinearLayout>
+    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="5sp" android:layout_marginRight="5sp">
+        <TextView android:text="TextView" android:layout_height="wrap_content" android:layout_weight="1" android:layout_width="fill_parent" android:ellipsize="marquee" android:id="@+id/search_item_gender" android:inputType="none" android:textColor="#ffc4e990"></TextView>
+        <TextView android:text="TextView" android:layout_height="wrap_content" android:inputType="none" android:id="@+id/search_item_age" android:ellipsize="marquee" android:layout_weight="1" android:layout_width="fill_parent" android:textColor="#ffc4e990"></TextView>
+    </LinearLayout>
+    
+</LinearLayout>

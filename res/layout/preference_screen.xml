@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="wrap_content" android:layout_height="wrap_content" android:src="@drawable/preference_screen_arrow" android:layout_gravity="center" android:paddingRight="15sp"></ImageView>

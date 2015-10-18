@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent">
+    <ScrollView android:layout_width="fill_parent" android:scrollbars="none" android:layout_height="fill_parent">
+        <LinearLayout android:layout_width="fill_parent" android:layout_height="fill_parent" android:orientation="vertical">
+            <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content">
+                <TextView android:text="Ник:" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginRight="5sp" android:textSize="18sp" android:textColor="#ffffffff" android:layout_weight="2.2" android:id="@+id/l1"></TextView>
+                <EditText android:maxLines="1" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_weight="1" android:id="@+id/details_dialog_nickname" android:inputType="text"></EditText>
+            </LinearLayout>
+            <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content">
+                <TextView android:text="Имя:" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginRight="5sp" android:textSize="18sp" android:textColor="#ffffffff" android:layout_weight="2.2" android:id="@+id/l2"></TextView>
+                <EditText android:maxLines="1" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_weight="1" android:id="@+id/details_dialog_firstname" android:inputType="text"></EditText>
+            </LinearLayout>
+            <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content">
+                <TextView android:text="Фамилия:" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginRight="5sp" android:textSize="18sp" android:textColor="#ffffffff" android:layout_weight="2.2" android:id="@+id/l3"></TextView>
+                <EditText android:maxLines="1" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_weight="1" android:id="@+id/details_dialog_lastname" android:inputType="text"></EditText>
+            </LinearLayout>
+            <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content">
+                <TextView android:text="Город:" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginRight="5sp" android:textSize="18sp" android:textColor="#ffffffff" android:layout_weight="2.2" android:id="@+id/l4"></TextView>
+                <EditText android:maxLines="1" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_weight="1" android:id="@+id/details_dialog_city" android:inputType="text"></EditText>
+            </LinearLayout>
+            <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content">
+                <TextView android:text="Интересы:" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginRight="5sp" android:textSize="18sp" android:textColor="#ffffffff" android:layout_weight="2.2" android:id="@+id/l5"></TextView>
+                <EditText android:maxLines="3" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_weight="1" android:id="@+id/details_dialog_interests" android:inputType="text"></EditText>
+            </LinearLayout>
+            <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content">
+                <TextView android:text="Пол:" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginRight="5sp" android:textSize="18sp" android:textColor="#ffffffff" android:layout_weight="2.2" android:id="@+id/l6"></TextView>
+                <TextView android:text=" - " android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#ffffffff" android:id="@+id/details_dialog_gender_preview"></TextView>
+                <Button android:id="@+id/details_dialog_gender" android:background="@drawable/button" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Выбрать"></Button>
+            </LinearLayout>
+            <LinearLayout android:layout_marginTop="2sp" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                <TextView android:text="Возраст:" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginRight="5sp" android:textSize="18sp" android:textColor="#ffffffff" android:layout_weight="2.2" android:id="@+id/l7"></TextView>
+                <TextView android:text=" - " android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#ffffffff" android:id="@+id/details_dialog_age_preview"></TextView>
+                <Button android:id="@+id/details_dialog_age" android:background="@drawable/button" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Выбрать"></Button>
+            </LinearLayout>
+            <LinearLayout android:layout_marginTop="2sp" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                <TextView android:text="Зодиак:" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginRight="5sp" android:textSize="18sp" android:textColor="#ffffffff" android:layout_weight="2.2" android:id="@+id/l8"></TextView>
+                <TextView android:text=" - " android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#ffffffff" android:id="@+id/details_dialog_zodiac_preview"></TextView>
+                <Button android:id="@+id/details_dialog_zodiac" android:background="@drawable/button" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Выбрать"></Button>
+            </LinearLayout>
+            <LinearLayout android:layout_marginTop="2sp" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                <TextView android:text="Страна:" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginRight="5sp" android:textSize="18sp" android:textColor="#ffffffff" android:layout_weight="2.2" android:id="@+id/l9"></TextView>
+                <TextView android:text=" - " android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#ffffffff" android:id="@+id/details_dialog_country_preview"></TextView>
+                <Button android:id="@+id/details_dialog_country" android:background="@drawable/button" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Выбрать"></Button>
+            </LinearLayout>
+            <LinearLayout android:layout_marginTop="2sp" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                <TextView android:text="Язык:" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginRight="5sp" android:textSize="18sp" android:textColor="#ffffffff" android:layout_weight="2.2" android:id="@+id/l10"></TextView>
+                <TextView android:text=" - " android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#ffffffff" android:id="@+id/details_dialog_language_preview"></TextView>
+                <Button android:id="@+id/details_dialog_language" android:background="@drawable/button" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Выбрать"></Button>
+            </LinearLayout>
+            <CheckBox android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/details_dialog_only_online" android:text="Только онлайн" android:paddingLeft="32sp"></CheckBox>
+        </LinearLayout>
+    </ScrollView>
+    
+</LinearLayout>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent">
+    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
+        <ImageView android:layout_width="wrap_content" android:layout_height="wrap_content" android:src="@drawable/msg_out" android:id="@+id/chat_item_icon" android:paddingLeft="2sp" android:drawingCacheQuality="low"></ImageView>
+        <TextView android:layout_height="wrap_content" android:id="@+id/chat_item_nick" android:text="Nickname" android:textColor="#ffffffff" android:paddingLeft="2sp" android:layout_width="fill_parent" android:layout_weight="1"></TextView>
+        <TextView android:text="TextView" android:layout_height="wrap_content" android:paddingLeft="2sp" android:id="@+id/chat_item_date" android:gravity="right" android:paddingRight="2sp" android:textSize="12sp" android:clickable="false" android:textColor="#ffdddddd" android:layout_width="wrap_content"></TextView>
+    </LinearLayout>
+
+    <ru.ivansuper.bimoidim.AutoRefreshTextView
+        android:id="@+id/chat_item_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="AutoRefreshTextView" android:autoLink="web" android:clickable="false" android:focusable="false" android:focusableInTouchMode="false"/>
+    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/chat_item_transfer_buttons" android:padding="5sp">
+        <Button android:layout_height="wrap_content" android:id="@+id/chat_item_accept_btn" android:text="Принять" android:layout_weight="1" android:layout_width="fill_parent"></Button>
+        <Button android:layout_height="wrap_content" android:id="@+id/chat_item_decline_btn" android:text="Отклонить" android:layout_width="fill_parent" android:layout_weight="1"></Button>
+    </LinearLayout>
+    
+</LinearLayout>

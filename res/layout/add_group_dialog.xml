@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent">
+    <ScrollView android:layout_height="wrap_content" android:layout_width="fill_parent">
+        <LinearLayout android:layout_height="wrap_content" android:layout_width="fill_parent" android:orientation="vertical">
+            <TextView android:id="@+id/l1" android:layout_height="wrap_content" android:textSize="16sp" android:text="Выберите профиль:" android:layout_width="wrap_content" android:textColor="#ffffffff"></TextView>
+            <ListView android:layout_weight="1" android:layout_width="fill_parent" android:background="@drawable/list_views_back" android:listSelector="@drawable/item_selected" android:layout_height="100sp" android:id="@+id/add_group_dialog_profiles"></ListView>
+            <TextView android:id="@+id/l2" android:layout_height="wrap_content" android:textSize="16sp" android:text="Имя группы:" android:layout_width="wrap_content" android:textColor="#ffffffff"></TextView>
+            <EditText android:layout_weight="1" android:maxLines="1" android:id="@+id/add_group_dialog_name" android:layout_height="wrap_content" android:layout_width="fill_parent">
+                <requestFocus></requestFocus>
+            </EditText>
+            <TextView android:id="@+id/l3" android:layout_height="wrap_content" android:textSize="16sp" android:text="Родительская группа:" android:layout_width="wrap_content" android:textColor="#ffffffff"></TextView>
+            <ListView android:layout_weight="1" android:layout_width="fill_parent" android:background="@drawable/list_views_back" android:listSelector="@drawable/item_selected" android:layout_height="100sp" android:id="@+id/add_group_dialog_groups"></ListView>
+        </LinearLayout>
+    </ScrollView>
+    
+</LinearLayout>

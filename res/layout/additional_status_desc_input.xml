@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent">
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:padding="3sp" android:text="Введите описание статуса:" android:textColor="#ffffffff" android:textSize="18sp" android:id="@+id/l1"></TextView>
+    <EditText android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/additional_status_desc_input_text">
+        <requestFocus></requestFocus>
+    </EditText>
+    
+</LinearLayout>

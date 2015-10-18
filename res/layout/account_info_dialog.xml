@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+  android:layout_width="fill_parent" android:layout_height="fill_parent">
+    <ScrollView android:layout_width="fill_parent" android:scrollbars="none" android:layout_height="fill_parent">
+        <LinearLayout android:layout_width="fill_parent" android:orientation="vertical" android:layout_height="wrap_content">
+            <TextView android:text="Nickname" android:layout_height="wrap_content" android:textSize="22sp" android:textColor="#ffffffff" android:id="@+id/info_dialog_nickname" android:layout_width="fill_parent" android:gravity="center_horizontal"></TextView>
+            <LinearLayout android:gravity="center_vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10sp">
+                <TextView android:text="Имя" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="18sp" android:textColor="#ffffffff" android:id="@+id/l1"></TextView>
+                <LinearLayout android:layout_marginBottom="5sp" android:orientation="vertical" android:layout_marginTop="7sp" android:layout_marginLeft="10sp" android:layout_width="fill_parent" android:layout_height="1sp" android:layout_marginRight="10sp"></LinearLayout>
+            </LinearLayout>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/info_dialog_firstname" android:text="First name" android:paddingLeft="10sp" android:textSize="14sp" android:textColor="#ffeeeeee"></TextView>
+            <LinearLayout android:gravity="center_vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10sp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="18sp" android:textColor="#ffffffff" android:text="Фамилия" android:id="@+id/l2"></TextView>
+                <LinearLayout android:layout_marginBottom="5sp" android:orientation="vertical" android:layout_marginTop="7sp" android:layout_marginLeft="10sp" android:layout_width="fill_parent" android:layout_height="1sp" android:layout_marginRight="10sp"></LinearLayout>
+            </LinearLayout>
+            <TextView android:paddingLeft="10sp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="14sp" android:textColor="#ffeeeeee" android:text="Data" android:id="@+id/info_dialog_lastname"></TextView>
+            <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginTop="10sp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#ffffffff" android:textSize="18sp" android:text="Страна" android:id="@+id/l3"></TextView>
+                <LinearLayout android:layout_marginBottom="5sp" android:orientation="vertical" android:layout_marginLeft="10sp" android:layout_width="fill_parent" android:layout_height="1sp" android:layout_marginRight="10sp" android:layout_marginTop="7sp"></LinearLayout>
+            </LinearLayout>
+            <TextView android:paddingLeft="10sp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="14sp" android:textColor="#ffeeeeee" android:id="@+id/info_dialog_country" android:text="Data"></TextView>
+            <LinearLayout android:gravity="center_vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10sp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="18sp" android:textColor="#ffffffff" android:text="Регион" android:id="@+id/l4"></TextView>
+                <LinearLayout android:layout_marginBottom="5sp" android:orientation="vertical" android:layout_marginTop="7sp" android:layout_marginLeft="10sp" android:layout_width="fill_parent" android:layout_height="1sp" android:layout_marginRight="10sp"></LinearLayout>
+            </LinearLayout>
+            <TextView android:paddingLeft="10sp" android:text="Data" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="14sp" android:textColor="#ffeeeeee" android:id="@+id/info_dialog_region"></TextView>
+            <LinearLayout android:gravity="center_vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10sp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="18sp" android:textColor="#ffffffff" android:text="Город" android:id="@+id/l5"></TextView>
+                <LinearLayout android:layout_marginBottom="5sp" android:orientation="vertical" android:layout_marginTop="7sp" android:layout_marginLeft="10sp" android:layout_width="fill_parent" android:layout_height="1sp" android:layout_marginRight="10sp"></LinearLayout>
+            </LinearLayout>
+            <TextView android:paddingLeft="10sp" android:text="Data" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="14sp" android:textColor="#ffeeeeee" android:id="@+id/info_dialog_city"></TextView>
+            <LinearLayout android:gravity="center_vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10sp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="18sp" android:textColor="#ffffffff" android:text="Индекс" android:id="@+id/l6"></TextView>
+                <LinearLayout android:layout_marginBottom="5sp" android:orientation="vertical" android:layout_marginTop="7sp" android:layout_marginLeft="10sp" android:layout_width="fill_parent" android:layout_height="1sp" android:layout_marginRight="10sp"></LinearLayout>
+            </LinearLayout>
+            <TextView android:paddingLeft="10sp" android:text="Data" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="14sp" android:textColor="#ffeeeeee" android:id="@+id/info_dialog_zipcode"></TextView>
+            <LinearLayout android:gravity="center_vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10sp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="18sp" android:textColor="#ffffffff" android:text="Адрес" android:id="@+id/l7"></TextView>
+                <LinearLayout android:layout_marginBottom="5sp" android:orientation="vertical" android:layout_marginTop="7sp" android:layout_marginLeft="10sp" android:layout_width="fill_parent" android:layout_height="1sp" android:layout_marginRight="10sp"></LinearLayout>
+            </LinearLayout>
+            <TextView android:paddingLeft="10sp" android:text="Data" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="14sp" android:textColor="#ffeeeeee" android:id="@+id/info_dialog_address"></TextView>
+            <LinearLayout android:gravity="center_vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10sp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="18sp" android:textColor="#ffffffff" android:text="Языки" android:id="@+id/l8"></TextView>
+                <LinearLayout android:layout_marginBottom="5sp" android:orientation="vertical" android:layout_marginTop="7sp" android:layout_marginLeft="10sp" android:layout_width="fill_parent" android:layout_height="1sp" android:layout_marginRight="10sp"></LinearLayout>
+            </LinearLayout>
+            <TextView android:paddingLeft="10sp" android:text="Data" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="14sp" android:textColor="#ffeeeeee" android:id="@+id/info_dialog_languages"></TextView>
+            <LinearLayout android:gravity="center_vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10sp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="18sp" android:textColor="#ffffffff" android:text="Пол/Дата рождения" android:id="@+id/l9"></TextView>
+                <LinearLayout android:layout_marginBottom="5sp" android:orientation="vertical" android:layout_marginTop="7sp" android:layout_marginLeft="10sp" android:layout_width="fill_parent" android:layout_height="1sp" android:layout_marginRight="10sp"></LinearLayout>
+            </LinearLayout>
+            <TextView android:paddingLeft="10sp" android:text="Data" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="14sp" android:textColor="#ffeeeeee" android:id="@+id/info_dialog_gender_birthday"></TextView>
+            <LinearLayout android:gravity="center_vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10sp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="18sp" android:textColor="#ffffffff" android:text="Домашняя страница" android:id="@+id/l10"></TextView>
+                <LinearLayout android:layout_marginBottom="5sp" android:orientation="vertical" android:layout_marginTop="7sp" android:layout_marginLeft="10sp" android:layout_width="fill_parent" android:layout_height="1sp" android:layout_marginRight="10sp"></LinearLayout>
+            </LinearLayout>
+            <TextView android:paddingLeft="10sp" android:text="Data" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="14sp" android:textColor="#ffeeeeee" android:id="@+id/info_dialog_homepage" android:autoLink="web"></TextView>
+            <LinearLayout android:gravity="center_vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10sp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="18sp" android:textColor="#ffffffff" android:text="О себе" android:id="@+id/l11"></TextView>
+                <LinearLayout android:layout_marginBottom="5sp" android:orientation="vertical" android:layout_marginTop="7sp" android:layout_marginLeft="10sp" android:layout_width="fill_parent" android:layout_height="1sp" android:layout_marginRight="10sp"></LinearLayout>
+            </LinearLayout>
+            <TextView android:paddingLeft="10sp" android:text="Data" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="14sp" android:textColor="#ffeeeeee" android:id="@+id/info_dialog_about"></TextView>
+            <LinearLayout android:gravity="center_vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10sp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="18sp" android:textColor="#ffffffff" android:text="Интересы" android:id="@+id/l12"></TextView>
+                <LinearLayout android:layout_marginBottom="5sp" android:orientation="vertical" android:layout_marginTop="7sp" android:layout_marginLeft="10sp" android:layout_width="fill_parent" android:layout_height="1sp" android:layout_marginRight="10sp"></LinearLayout>
+            </LinearLayout>
+            <TextView android:paddingLeft="10sp" android:text="Data" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="14sp" android:textColor="#ffeeeeee" android:id="@+id/info_dialog_interests"></TextView>
+            <LinearLayout android:gravity="center_vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10sp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="18sp" android:textColor="#ffffffff" android:text="E-Mail" android:id="@+id/l13"></TextView>
+                <LinearLayout android:layout_marginBottom="5sp" android:orientation="vertical" android:layout_marginTop="7sp" android:layout_marginLeft="10sp" android:layout_width="fill_parent" android:layout_height="1sp" android:layout_marginRight="10sp"></LinearLayout>
+            </LinearLayout>
+            <TextView android:paddingLeft="10sp" android:text="Data" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="14sp" android:textColor="#ffeeeeee" android:id="@+id/info_dialog_emails" android:autoLink="email"></TextView>
+            <LinearLayout android:gravity="center_vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10sp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="18sp" android:textColor="#ffffffff" android:text="Телефоны" android:id="@+id/l14"></TextView>
+                <LinearLayout android:layout_marginBottom="5sp" android:orientation="vertical" android:layout_marginTop="7sp" android:layout_marginLeft="10sp" android:layout_width="fill_parent" android:layout_height="1sp" android:layout_marginRight="10sp"></LinearLayout>
+            </LinearLayout>
+            <TextView android:paddingLeft="10sp" android:text="Data" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="14sp" android:textColor="#ffeeeeee" android:id="@+id/info_dialog_phones" android:autoLink="phone"></TextView>
+            <LinearLayout android:gravity="center_vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10sp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="18sp" android:textColor="#ffffffff" android:text="Компания" android:id="@+id/l15"></TextView>
+                <LinearLayout android:layout_marginBottom="5sp" android:orientation="vertical" android:layout_marginTop="7sp" android:layout_marginLeft="10sp" android:layout_width="fill_parent" android:layout_height="1sp" android:layout_marginRight="10sp"></LinearLayout>
+            </LinearLayout>
+            <TextView android:paddingLeft="10sp" android:text="Data" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="14sp" android:textColor="#ffeeeeee" android:id="@+id/info_dialog_company"></TextView>
+            <LinearLayout android:gravity="center_vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10sp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="18sp" android:textColor="#ffffffff" android:text="Отдел" android:id="@+id/l16"></TextView>
+                <LinearLayout android:layout_marginBottom="5sp" android:orientation="vertical" android:layout_marginTop="7sp" android:layout_marginLeft="10sp" android:layout_width="fill_parent" android:layout_height="1sp" android:layout_marginRight="10sp"></LinearLayout>
+            </LinearLayout>
+            <TextView android:paddingLeft="10sp" android:text="Data" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="14sp" android:textColor="#ffeeeeee" android:id="@+id/info_dialog_dept"></TextView>
+            <LinearLayout android:gravity="center_vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10sp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="18sp" android:textColor="#ffffffff" android:text="Должность" android:id="@+id/l17"></TextView>
+                <LinearLayout android:layout_marginBottom="5sp" android:orientation="vertical" android:layout_marginTop="7sp" android:layout_marginLeft="10sp" android:layout_width="fill_parent" android:layout_height="1sp" android:layout_marginRight="10sp"></LinearLayout>
+            </LinearLayout>
+            <TextView android:paddingLeft="10sp" android:text="Data" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="14sp" android:textColor="#ffeeeeee" android:id="@+id/info_dialog_position"></TextView>
+        </LinearLayout>
+    </ScrollView>
+    
+</LinearLayout>

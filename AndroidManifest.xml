@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="ru.ivansuper.bimoidim" android:installLocation="auto" android:versionName="1.0.1.53" android:versionCode="7">
+    <uses-sdk android:minSdkVersion="4" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"></uses-permission>
+    <compatible-screens>
+        <screen android:screenSize="small"/>
+        <screen android:screenSize="normal"/>
+        <screen android:screenSize="large"/>
+        <screen android:screenSize="xlarge"/>
+    </compatible-screens>
+
+    <application android:icon="@drawable/icon" android:label="@string/app_name" android:theme="@style/MainTheme" android:name="ru.ivansuper.base.loader">
+        <activity android:name=".main"
+                  android:configChanges="keyboardHidden|orientation" android:theme="@android:style/Theme.Translucent.NoTitleBar" android:alwaysRetainTaskState="false" android:stateNotNeeded="true" android:clearTaskOnLaunch="true" android:noHistory="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name="ContactListActivity" android:configChanges="keyboardHidden|orientation" android:launchMode="singleTask" android:theme="@style/MainTheme" android:stateNotNeeded="true" android:alwaysRetainTaskState="false" android:noHistory="false"></activity>
+        <service android:name="ru.ivansuper.bservice.BimoidService"></service>
+        <activity android:name="ChatActivity" android:launchMode="singleTask" android:configChanges="keyboardHidden|orientation" android:windowSoftInputMode="stateHidden" android:theme="@style/MainTheme" android:stateNotNeeded="true" android:alwaysRetainTaskState="false" android:noHistory="false"></activity>
+        <activity android:name="SettingsActivity" android:configChanges="keyboardHidden|orientation" android:launchMode="singleTask" android:theme="@style/SettingsTheme" android:stateNotNeeded="true" android:alwaysRetainTaskState="false" android:noHistory="false"></activity>
+        <activity android:name="ProfilesActivity" android:configChanges="keyboardHidden|orientation" android:launchMode="singleTask" android:theme="@style/MainTheme" android:stateNotNeeded="true" android:alwaysRetainTaskState="false" android:noHistory="true">
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT"></category><action android:name="ru.ivansuper.bimoidim.PROFILES"></action>
+            </intent-filter>
+        </activity>
+        <activity android:name="RegistrationActivity" android:launchMode="singleTask" android:configChanges="keyboardHidden|orientation" android:theme="@style/MainTheme" android:stateNotNeeded="true" android:alwaysRetainTaskState="false" android:noHistory="true"></activity>
+        <activity android:name="DetailSearchActivity" android:configChanges="keyboardHidden|orientation" android:launchMode="singleTask" android:theme="@style/MainTheme" android:stateNotNeeded="true" android:alwaysRetainTaskState="false" android:noHistory="true"></activity>
+        <activity android:name="ru.ivansuper.bimoidproto.filetransfer.FileBrowserActivity" android:configChanges="keyboardHidden|orientation" android:theme="@android:style/Theme.Black.NoTitleBar" android:stateNotNeeded="true" android:alwaysRetainTaskState="false" android:noHistory="true"></activity>
+        <activity android:name="SmileysSelector" android:configChanges="keyboardHidden|orientation" android:theme="@style/MainTheme" android:stateNotNeeded="true" android:alwaysRetainTaskState="false" android:noHistory="true"></activity>
+        <activity android:name="HistoryActivity" android:configChanges="keyboardHidden|orientation" android:theme="@style/MainTheme" android:stateNotNeeded="true" android:alwaysRetainTaskState="false" android:noHistory="true" android:windowSoftInputMode="stateAlwaysHidden"></activity>
+        <activity android:launchMode="singleTask" android:configChanges="keyboardHidden|orientation" android:name=".IgnoreActivity" android:theme="@style/MainTheme" android:stateNotNeeded="true" android:alwaysRetainTaskState="false" android:noHistory="true"></activity>
+        <activity android:name=".SkinsActivity" android:configChanges="keyboardHidden|orientation|screenLayout" android:theme="@android:style/Theme.Black.NoTitleBar" android:stateNotNeeded="true" android:alwaysRetainTaskState="false" android:noHistory="true"><intent-filter>
+                <category android:name="android.intent.category.DEFAULT"></category><action android:name="ru.ivansuper.bimoidim.SKINS"></action>
+            </intent-filter></activity>
+
+    </application>
+<uses-permission android:name="android.permission.INTERNET"></uses-permission>
+<uses-permission android:name="android.permission.VIBRATE"></uses-permission>
+
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
+<uses-permission android:name="android.permission.WAKE_LOCK"></uses-permission>
+<uses-permission android:name="android.permission.READ_PHONE_STATE"></uses-permission>
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
+</manifest>

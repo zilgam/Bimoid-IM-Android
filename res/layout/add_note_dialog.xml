@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent">
+
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" >
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/l1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Выберите профиль:"
+                android:textColor="#ffffffff"
+                android:textSize="16sp" />
+
+            <ListView
+                android:id="@+id/add_note_dialog_profiles"
+                android:layout_width="fill_parent"
+                android:layout_height="100sp"
+                android:layout_weight="1"
+                android:background="@drawable/list_views_back"
+                android:cacheColorHint="#00000000"
+                android:divider="@null"
+                android:dividerHeight="1sp"
+                android:listSelector="@drawable/item_selected" >
+            </ListView>
+
+            <TextView
+                android:id="@+id/l2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Название"
+                android:textColor="#ffffffff"
+                android:textSize="16sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical" >
+
+                <EditText
+                    android:id="@+id/add_note_dialog_name"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="3sp"
+                    android:maxLines="1" android:layout_weight="1" android:singleLine="true"/>
+
+                <Button
+                    android:id="@+id/add_note_dialog_type_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableLeft="@drawable/note" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/l3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Текст"
+                android:textColor="#ffffffff"
+                android:textSize="16sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical" >
+
+                <EditText
+                    android:id="@+id/add_note_dialog_text"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="3sp"
+                    android:layout_weight="1"
+                    android:maxLines="1" android:singleLine="true"/>
+
+                <Button
+                    android:id="@+id/add_note_dialog_select_file_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" ... " />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/l4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Выберите группу:"
+                android:textColor="#ffffffff"
+                android:textSize="16sp" />
+
+            <ListView
+                android:id="@+id/add_note_dialog_groups"
+                android:layout_width="fill_parent"
+                android:layout_height="100sp"
+                android:layout_weight="1"
+                android:background="@drawable/list_views_back"
+                android:cacheColorHint="#00000000"
+                android:divider="@null"
+                android:dividerHeight="1sp"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:listSelector="@drawable/item_selected" >
+            </ListView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/add_note_type_dialog_type_list_layout"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical" android:gravity="center" android:clickable="true" android:focusableInTouchMode="true" android:focusable="true">
+
+            <ListView
+                android:id="@+id/add_note_dialog_type_list"
+                android:layout_width="256sp"
+                android:layout_height="wrap_content" android:background="@drawable/blue_glow" android:divider="@null">
+            </ListView>
+
+        </LinearLayout>
+
+    </FrameLayout>
+    
+</LinearLayout>

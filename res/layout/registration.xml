@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent" android:id="@+id/registration_back">
+    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="vertical" android:background="@drawable/chat_top_panel" android:id="@+id/header">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Регистрация в BIMOID" android:textColor="#ffffffff" android:textSize="20sp" android:id="@+id/l1" android:paddingLeft="25sp" android:paddingBottom="5sp" android:paddingTop="5sp"></TextView>
+        <LinearLayout android:id="@+id/divider" android:layout_marginLeft="10sp" android:layout_width="fill_parent" android:background="#ffb3e15b" android:layout_marginBottom="5sp" android:layout_height="1sp" android:orientation="vertical" android:layout_marginRight="10sp"></LinearLayout>
+    </LinearLayout>
+    <ScrollView android:layout_width="fill_parent" android:layout_height="fill_parent" android:background="@drawable/smileys_selector_back" android:id="@+id/reg_field">
+        <FrameLayout android:layout_width="fill_parent" android:layout_height="fill_parent">
+            <LinearLayout android:id="@+id/reg_datafield" android:layout_width="fill_parent" android:padding="10sp" android:layout_height="fill_parent" android:orientation="vertical">
+                <TextView android:id="@+id/l2" android:layout_height="wrap_content" android:textSize="18sp" android:text="Имя учетной записи (a-z, 0-9):" android:layout_width="wrap_content" android:textColor="#ffffffff" android:paddingLeft="5sp" android:layout_marginTop="10sp"></TextView>
+                <EditText android:id="@+id/reg_id" android:layout_height="wrap_content" android:layout_width="fill_parent"></EditText>
+                <TextView android:id="@+id/l3" android:layout_height="wrap_content" android:textSize="18sp" android:text="Укажите пароль:" android:layout_width="wrap_content" android:textColor="#ffffffff" android:paddingLeft="5sp" android:layout_marginTop="10sp"></TextView>
+                <EditText android:id="@+id/reg_pass" android:layout_height="wrap_content" android:inputType="textPassword" android:layout_width="fill_parent"></EditText>
+                <TextView android:id="@+id/l4" android:layout_height="wrap_content" android:textSize="18sp" android:text="Введите пароль еще раз:" android:layout_width="wrap_content" android:textColor="#ffffffff" android:paddingLeft="5sp" android:layout_marginTop="10sp"></TextView>
+                <EditText android:id="@+id/reg_pass_dbl" android:layout_height="wrap_content" android:inputType="textPassword" android:layout_width="fill_parent"></EditText>
+                <TextView android:id="@+id/l5" android:layout_height="wrap_content" android:textSize="18sp" android:text="Ваш e-mail адрес:" android:layout_width="wrap_content" android:textColor="#ffffffff" android:paddingLeft="5sp" android:layout_marginTop="10sp"></TextView>
+                <EditText android:id="@+id/reg_email" android:layout_height="wrap_content" android:layout_width="fill_parent"></EditText>
+                <LinearLayout android:layout_marginLeft="64sp" android:layout_width="fill_parent" android:gravity="center_vertical" android:layout_height="fill_parent" android:orientation="vertical" android:layout_marginRight="64sp">
+                    <Button android:id="@+id/reg_do_register" android:layout_height="wrap_content" android:background="@drawable/button" android:text="Зарегистрироваться!" android:layout_marginLeft="5sp" android:layout_width="fill_parent" android:layout_marginRight="5sp" android:layout_marginTop="15sp"></Button>
+                    <Button android:id="@+id/reg_cancel" android:layout_height="wrap_content" android:background="@drawable/button" android:text="Отменить регистрацию" android:layout_marginLeft="5sp" android:layout_width="fill_parent" android:layout_marginRight="5sp" android:layout_marginTop="15sp"></Button>
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout android:id="@+id/reg_success_field" android:visibility="gone" android:layout_width="fill_parent" android:padding="15sp" android:layout_height="fill_parent" android:orientation="vertical">
+                <TextView android:id="@+id/l6" android:layout_height="wrap_content" android:textSize="20sp" android:text="Поздравляем!" android:layout_width="wrap_content" android:textColor="#ffffffff" android:paddingLeft="5sp"></TextView>
+                <TextView android:id="@+id/l7" android:layout_height="wrap_content" android:textSize="20sp" android:text="Регистрация прошла успешно. Теперь Вы можете войти в сеть используя свой новый ID." android:layout_width="wrap_content" android:textColor="#ffffffff" android:paddingLeft="5sp" android:layout_marginTop="10sp"></TextView>
+                <LinearLayout android:layout_marginLeft="64sp" android:layout_width="fill_parent" android:gravity="center_vertical" android:layout_height="fill_parent" android:orientation="vertical" android:layout_marginRight="64sp">
+                    <Button android:id="@+id/reg_back" android:layout_height="wrap_content" android:background="@drawable/button" android:text="Вернуться назад" android:layout_width="fill_parent" android:layout_marginTop="15sp"></Button>
+                </LinearLayout>
+            </LinearLayout>
+        </FrameLayout>
+    </ScrollView>
+    
+</LinearLayout>

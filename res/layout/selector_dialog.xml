@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent">
+    <EditText android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/selector_dialog_search" android:drawableRight="@drawable/ic_btn_search">
+        <requestFocus></requestFocus>
+    </EditText>
+    <ListView android:layout_width="fill_parent" android:id="@+id/selector_dialog_list" android:layout_height="fill_parent" android:animationCache="false" android:alwaysDrawnWithCache="false" android:background="#01000000" android:cacheColorHint="#01000000"></ListView>
+    
+</LinearLayout>

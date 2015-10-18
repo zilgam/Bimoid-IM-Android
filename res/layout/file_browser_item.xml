@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+  android:layout_height="wrap_content" android:layout_width="fill_parent" android:gravity="center_horizontal" android:drawingCacheQuality="low">
+    <FrameLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:drawingCacheQuality="low" android:padding="10sp">
+        <LinearLayout android:gravity="center_horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:orientation="vertical" android:drawingCacheQuality="low">
+            <ImageView android:scaleType="fitCenter" android:id="@+id/file_item_icon" android:layout_width="64sp" android:layout_height="64sp" android:src="@drawable/directory" android:drawingCacheQuality="low"></ImageView>
+            <TextView android:layout_width="fill_parent" android:layout_margin="2sp" android:padding="2sp" android:gravity="center_horizontal" android:focusable="false" android:clickable="false" android:textSize="12sp" android:focusableInTouchMode="false" android:ellipsize="marquee" android:id="@+id/file_item_label" android:textColor="#ffffffff" android:layout_height="wrap_content" android:text="Item Text" android:minLines="2" android:maxLines="2"></TextView>
+            <TextView android:layout_width="fill_parent" android:focusable="false" android:clickable="false" android:focusableInTouchMode="false" android:ellipsize="marquee" android:id="@+id/file_item_size" android:layout_height="wrap_content" android:text="[1 Kb]" android:textColor="#ffdddddd"></TextView>
+        </LinearLayout>
+        <ImageView android:padding="10sp" android:layout_height="wrap_content" android:id="@+id/file_item_check" android:layout_width="wrap_content" android:src="@drawable/checkbox_on"></ImageView>
+    </FrameLayout>
+    
+</LinearLayout>

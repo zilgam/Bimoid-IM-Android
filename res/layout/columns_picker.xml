@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" android:padding="5sp" android:minWidth="280sp">
+
+    <TextView
+        android:id="@+id/l2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Preference title"
+        android:layout_gravity="center_horizontal" android:textColor="#ffffffff" android:textSize="24sp" android:shadowColor="#ff000000" android:shadowDx="0" android:shadowDy="0" android:shadowRadius="1" android:gravity="center_horizontal" android:layout_marginBottom="12sp"/>
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" android:minHeight="200sp">
+
+        <RadioGroup
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" android:id="@+id/rg1">
+
+            <RadioButton
+                android:id="@+id/r1"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="1" />
+
+            <RadioButton
+                android:id="@+id/r2"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="2" />
+
+            <RadioButton
+                android:id="@+id/r3"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="3" />
+
+            <RadioButton
+                android:id="@+id/r4"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="4" />
+
+            <RadioButton
+                android:id="@+id/r5"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="5" />
+
+            <RadioButton
+                android:id="@+id/r6"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="6" />
+        </RadioGroup>
+
+    </ScrollView>
+
+</LinearLayout>

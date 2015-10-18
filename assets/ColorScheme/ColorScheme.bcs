@@ -1,0 +1,48 @@
+//BIMOID COLOR SCHEME
+//
+//Don't edit this file if you don't know what you doing
+//
+//First byte is ALPHA, second is RED, third is GREEN and last byte is BLUE
+//
+//Also don't change the order of color parameters
+//
+Contactlist background = 0xff000000
+Contactlist bottom panel = 0xff000000
+Popup status menu header text = 0xff3a5a82
+Dialogs header text = 0xff3a5a82
+Dialog header divider = 0xff3a5a82
+Profile-group text = 0xff3a5a82
+Profile-group near-text lines = 0xff3a5a82
+Group text = 0xff3a5a82
+Contact nick online = 0xff0000ff
+Contact nick offline = 0xffee0000
+Contact nick typing = 0xff00aa00
+Contact under-nick status text = 0xff3a5a82
+Foreground text = 0xff3a5a82
+Input text color = 0xff3a5a82
+Chat top panel nick = 0xff3a5a82
+Chat top panel client name = 0xff3a5a82
+Chat incoming message nick = 0xffff0000
+Chat outgoing message nick = 0xff0000ff
+Chat incoming message text = 0xff3a5a82
+Chat outgoing message text = 0xff3a5a82
+Chat message date-time text = 0xff3a5a82
+Chat messages link color = 0xff3a5a82
+Search result item main info = 0xff3a5a82
+Search result item additional info = 0xff3a5a82
+Buttons label = 0xff000000
+Chat bottom panel = 0xff000000
+Chat top panel = 0xff000000
+Chat messages back = 0xff000000
+History window back = 0xff000000
+Search window back = 0xff000000
+Profiles window back = 0xff000000
+Registration window back = 0xff000000
+Chat incoming message back = 0x11ffffff
+Chat outgoing message back = 0x11000000
+Chat auth accepted message back = 0x4400ff00
+Chat auth rejected message back = 0x44ff0000
+Chat auth request message back = 0x44ffff00
+Shadows color = 0x33000000
+Note name = 0xff0000ff
+Note preview = 0xff3a5a82

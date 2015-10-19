@@ -18,6 +18,16 @@ public class NoteItem extends RosterItem {
 	public String TEXT;
 	public long TIMESTAMP;
 	public byte[] HASH;
+	public void update(RosterItem item){
+		try{
+			NoteItem n = (NoteItem)item;
+			this.name = n.name;
+			this.TYPE = n.TYPE;
+			this.TEXT = n.TEXT;
+			this.TIMESTAMP = n.TIMESTAMP;
+			this.HASH = n.HASH;
+		}catch(Exception e){}
+	}
 	public Drawable getIcon(){
 		switch(TYPE){
 		case CL_NOTE_TYPE_COMMAND:

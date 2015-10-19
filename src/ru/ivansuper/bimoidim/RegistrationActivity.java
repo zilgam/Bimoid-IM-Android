@@ -223,7 +223,7 @@ public class RegistrationActivity extends Activity implements Callback{
 		removeDialog(1);
 		BimoidProfile profile = new BimoidProfile(service,
 				registrator.ID+"@bimoid.net",
-				registrator.pass);
+				registrator.pass, false, false);
 		service.profiles.list.add(profile);
 		try {
 			service.profiles.saveProfiles();

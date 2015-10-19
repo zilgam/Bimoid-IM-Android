@@ -109,10 +109,13 @@ public class main extends Activity implements Callback {
 		if(profiles_request){
 			i.putExtra("no_profiles", true);
 		}
-		startActivity(i);
 		Intent ii = getIntent();
-		if(ii.getAction() == null) return;
-		if(ii.getAction().startsWith("%MSG%")){
+		final String action = ii.getAction();
+		if(action != null)
+			i.setAction(action);
+		startActivity(i);
+		
+		/*if(ii.getAction().startsWith("%MSG%")){
 			String raw = ii.getAction().substring(5, ii.getAction().length());
 			String[] params = raw.split(";;;");
 			if(params.length != 3) return;
@@ -128,7 +131,7 @@ public class main extends Activity implements Callback {
 			resources.service.currentChatContact = resources.service.contactForOpenFromNotify;
 			Intent chat = new Intent(this, ChatActivity.class);
 			startActivity(chat);
-		}
+		}*/
     }
 	@Override
 	public boolean handleMessage(Message msg) {

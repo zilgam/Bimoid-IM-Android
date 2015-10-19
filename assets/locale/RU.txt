@@ -22,8 +22,8 @@ s_status_na := Недоступен
 s_status_oc := Занят
 s_status_dnd := Не беспокоить
 s_status_online := В сети
-s_status_invisible := Невидим
-s_status_invisible_for_all := Невидим для всех
+s_status_invisible := Невидимый
+s_status_invisible_for_all := Невидимый для всех
 s_status_offline := Не в сети
 
 s_ask_suth := Запросить авторизацию
@@ -43,6 +43,7 @@ s_error_message_header := Ошибка
 s_auth_request_error := Текст запроса не может быть пустым.
 s_close := Закрыть
 s_do_quote := Цитировать
+s_do_open := Открыть
 s_do_copy := Копировать
 s_do_copy_id := Копировать ID
 s_copied := Скопировано
@@ -386,6 +387,15 @@ s_ms_store_history := Хранить историю
 s_app_needs_to_restart := Для применения изменений нужно перезапустить программу
 s_copy_note_name := Скопировать имя
 s_copy_note_text := Скопировать текст
+s_ms_hide_empty_groups := Скрыть пустые группы
+s_note_elready_exist := Заметка с таким именем уже существует
+s_autoconnect := Автоподключение
+s_transport_settings_account_tab := Аккаунт
+s_transport_settings_server_tab := Сервер
+s_transport_settings_account_tab_login := Логин:
+s_transport_settings_account_tab_password := Пароль:
+s_transport_settings_server_tab_server := Сервер:
+s_transport_settings_server_tab_port := Порт:
 //===Additional===
 //countries
 s_country_1 := Афганистан

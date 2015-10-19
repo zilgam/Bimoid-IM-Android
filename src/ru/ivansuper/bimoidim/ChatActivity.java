@@ -2,13 +2,18 @@ package ru.ivansuper.bimoidim;
 
 import ru.ivansuper.BimoidInterface.ColorScheme;
 import ru.ivansuper.BimoidInterface.Interface;
+import ru.ivansuper.bimoidproto.BimoidProfile;
 import ru.ivansuper.bimoidproto.Contact;
 import ru.ivansuper.bimoidproto.HistoryItem;
 import ru.ivansuper.bimoidproto.filetransfer.FileBrowserActivity;
 import ru.ivansuper.bservice.BimoidService;
 import ru.ivansuper.locale.Locale;
+import ru.ivansuper.popup.PopupBuilder;
+import ru.ivansuper.popup.QuickAction;
+import ru.ivansuper.ui.ExFragment;
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.Service;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -29,6 +34,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.view.animation.LayoutAnimationController;
 import android.view.animation.ScaleAnimation;
@@ -42,7 +48,9 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class ChatActivity extends Activity implements Callback {
+public class ChatActivity extends ExFragment implements Callback {
+	public static final int CODE_FILE = 64;
+	public static final int CODE_SMILE = 65;
     private BimoidService service;
     private ListView messages_list;
     private EditText input;
@@ -51,7 +59,7 @@ public class ChatActivity extends Activity implements Callback {
     private ImageView ests;
     private TextView nickname;
     private TextView client;
-    private Contact contact;
+    private static Contact contact;
     private ChatAdapter chat_adapter;
     private Handler hdl = new Handler(this);
     private BufferedDialog dialog_for_display = new BufferedDialog(0, null, null);
@@ -60,30 +68,48 @@ public class ChatActivity extends Activity implements Callback {
     public static final int REFRESH_CHAT = 1;
     public static final int UPDATE_USER_INFO = 2;
     private HistoryItem context_message;
-    private TypingTimeoutThread typing_timeout_thread = new TypingTimeoutThread();
+    private TypingTimeoutThread typing_timeout_thread;
 	private boolean typing = false;
+	private ChatInitCallback chat_init_callback;
+	public static final ChatActivity getInstance(Contact contact_, ChatInitCallback callback){
+		contact = contact_;
+		return new ChatActivity(callback);
+	}
+	public static final ChatActivity getInstance(String schema, ChatInitCallback callback){
+		if(schema.startsWith("CHAT")){
+			schema = schema.substring(4);
+			String[] parts = schema.split("***$$$SEPARATOR$$$***");
+			BimoidProfile p = resources.service.profiles.getProfileByID(parts[2]);
+			contact = p.getContactById(parts[0], Integer.parseInt(parts[1]));
+		}
+		return new ChatActivity(callback);
+	}
+	private ChatActivity(ChatInitCallback callback){
+		chat_init_callback = callback;
+		typing_timeout_thread = new TypingTimeoutThread();
+	}
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onCreate() {
+        super.onCreate();
         setContentView(R.layout.chat);
         setVolumeControlStream(0x3);
-        initViews();
-        if(resources.service == null){
-        	finish();
-        	return;
-        }
        	service = resources.service;
-		handleServiceConnected();
         typing_timeout_thread.start();
     }
+    @Override
+	public void onStart(){
+		super.onStart();
+		initViews();
+	}
     @Override
     public void onDestroy(){
     	super.onDestroy();
     	typing_timeout_thread.destroy();
-    	//if(svcc != null) unbindService(svcc);
     }
     @Override
     public void onResume(){
+    	super.onResume();
+		handleServiceConnected();
     	isAnyChatOpened = true;
     	if(contact != null){
     		if(contact.hasUnreadMessages()){
@@ -103,15 +129,13 @@ public class ChatActivity extends Activity implements Callback {
     	if(chat_adapter != null){
     		chat_adapter.notifyAdapter();
     	}
-    	super.onResume();
     }
     @Override
     public void onPause(){
-    	
     	super.onPause();
     	isAnyChatOpened = false;
     }
-    @Override
+    /*@Override
     public boolean onKeyDown(int keyCode, KeyEvent event){
     	//super.onKeyDown(keyCode, event)
     	if(event.getAction() == KeyEvent.ACTION_DOWN){
@@ -129,16 +153,16 @@ public class ChatActivity extends Activity implements Callback {
     }
     private void onBackDown(){
     	finish();
-    }
+    }*/
     @Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    	if(requestCode == 0){
-    		if(resultCode == RESULT_OK){
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    	if(requestCode == CODE_FILE){
+    		if(resultCode == Activity.RESULT_OK){
     			String[] files = data.getAction().split("////");
     			sendFiles(files);
     		}
-    	}else if(requestCode == 1){
-    		if(resultCode == RESULT_OK){
+    	}else if(requestCode == CODE_SMILE){
+    		if(resultCode == Activity.RESULT_OK){
     			String smile = data.getAction();
     			if(input == null) return;
     			input.append(smile);
@@ -149,7 +173,7 @@ public class ChatActivity extends Activity implements Callback {
     private void sendFiles(String[] files){
     	contact.getProfile().createFileSender(contact, files);
     }
-    protected Dialog onCreateDialog(final int type){
+    public Dialog onCreateDialog(final int type){
     	Dialog dialog = null;
     	switch(type){
     	case 0x0://Main menu
@@ -181,20 +205,20 @@ public class ChatActivity extends Activity implements Callback {
             	}
         	}
     		adapter.put(resources.context_menu_icon, Locale.getString("s_messages_history"), 8);
-        	dialog = DialogBuilder.create(ChatActivity.this,
+        	dialog = DialogBuilder.create(ChatActivity.this.ACTIVITY,
         			Locale.getString("s_chat"),
         			adapter,
     				Gravity.CENTER,
     				new context_menu_listener());
     		break;
     	case 0x1://Auth reason input
-        	LinearLayout lay = (LinearLayout)View.inflate(this, R.layout.auth_reason_input, null);
+        	LinearLayout lay = (LinearLayout)View.inflate(this.ACTIVITY, R.layout.auth_reason_input, null);
         	final EditText reason_input = (EditText)lay.findViewById(R.id.auth_reason_input);
         	reason_input.setText(Locale.getString("s_type_in_auth_req_template"));
     		if(ColorScheme.initialized) reason_input.setTextColor(ColorScheme.getColor(13));
     		if(ColorScheme.initialized) utilities.setLabel(((TextView)lay.findViewById(R.id.l1)), "s_type_in_auth_req_text").setTextColor(ColorScheme.getColor(12));
         	Interface.attachEditTextStyle(reason_input);
-        	dialog = DialogBuilder.createYesNo(ChatActivity.this, lay,
+        	dialog = DialogBuilder.createYesNo(ChatActivity.this.ACTIVITY, lay,
         			Gravity.CENTER,
         			Locale.getString("s_authorization"),
         			Locale.getString("s_do_send"),
@@ -221,7 +245,7 @@ public class ChatActivity extends Activity implements Callback {
     	case 0x2://Notify dialog
 			service.media.playEvent(Media.SVC_MSG);
     		if(dialog_for_display == null) return null;
-        	dialog = DialogBuilder.createOk(ChatActivity.this,
+        	dialog = DialogBuilder.createOk(ChatActivity.this.ACTIVITY,
         			dialog_for_display.header, dialog_for_display.text, Locale.getString("s_close"),
         			Gravity.TOP, new OnClickListener(){
     					@Override
@@ -236,7 +260,7 @@ public class ChatActivity extends Activity implements Callback {
         	adapter.put(resources.context_menu_icon, Locale.getString("s_do_quote"), 3);
         	adapter.put(resources.context_menu_icon, Locale.getString("s_do_copy"), 4);
         	adapter.put(resources.context_menu_icon, Locale.getString("s_copy_only_text"), 5);
-        	dialog = DialogBuilder.create(ChatActivity.this,
+        	dialog = DialogBuilder.create(ChatActivity.this.ACTIVITY,
         			Locale.getString("s_chat"),
         			adapter,
     				Gravity.CENTER,
@@ -280,21 +304,26 @@ public class ChatActivity extends Activity implements Callback {
 				break;
 			case 3://Quote
 				if(context_message == null) return;
-				String buffer = "";
+				
+				String buffer = input.getText().toString();
+				
 				if(context_message.direction == HistoryItem.DIRECTION_INCOMING){
 					buffer += context_message.contact.getName();
 				}else{
 					buffer += context_message.contact.getProfile().nickname;
 				}
+				
 				buffer += " "+context_message.formattedDate+"\n";
 				buffer += context_message.message+"\n";
+				
 				input.setText(buffer);
 				input.setSelection(buffer.length(), buffer.length());
+				
 				removeDialog(3);
 				break;
 			case 4://Full copy
 				if(context_message == null) return;
-				ClipboardManager cm = (ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
+				ClipboardManager cm = (ClipboardManager)getSystemService(Service.CLIPBOARD_SERVICE);
 				buffer = "";
 				if(context_message.direction == HistoryItem.DIRECTION_INCOMING){
 					buffer += context_message.contact.getName();
@@ -308,14 +337,14 @@ public class ChatActivity extends Activity implements Callback {
 				break;
 			case 5://Copy only text
 				if(context_message == null) return;
-				cm = (ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
+				cm = (ClipboardManager)getSystemService(Service.CLIPBOARD_SERVICE);
 				buffer = context_message.message+"\n";
 				cm.setText(buffer);
 				removeDialog(3);
 				break;
 			case 6:
-				Intent i = new Intent(ChatActivity.this, FileBrowserActivity.class);
-				startActivityForResult(i, 0);
+				Intent i = new Intent(ChatActivity.this.ACTIVITY, FileBrowserActivity.class);
+				ACTIVITY.startActivityForResult(i, CODE_FILE);
 				break;
 			case 7:
 				if(contact.haveExtendedStatusDescription()){
@@ -326,7 +355,6 @@ public class ChatActivity extends Activity implements Callback {
 					hst.message = contact.getExtendedDescription();
 					hst.resetConfirmation();
 					chat_adapter.put(hst);
-					//chat_adapter.notifyAdapter();
 				}else{
 					dialog_for_display.header = Locale.getString("s_information");
 					dialog_for_display.text = Locale.getString("s_contact_didnt_have_status_message");
@@ -335,7 +363,7 @@ public class ChatActivity extends Activity implements Callback {
 				}
 				break;
 			case 8:
-				Intent history = new Intent(ChatActivity.this, HistoryActivity.class);
+				Intent history = new Intent(ChatActivity.this.ACTIVITY, HistoryActivity.class);
 				history.setAction(contact.getID()+";;;%;;;"+contact.getProfile().ID+";;;%;;;"+contact.getName());
 				startActivity(history);
 				break;
@@ -353,9 +381,21 @@ public class ChatActivity extends Activity implements Callback {
     	messages_list.setOnItemClickListener(new messages_click_listener());
     	messages_list.setOnItemLongClickListener(new messages_long_click_listener());
     	input = (EditText)findViewById(R.id.chat_input);
+    	//input.requestFocus();
 		if(ColorScheme.initialized) input.setTextColor(ColorScheme.getColor(13));
 		Interface.attachEditTextStyle(input);
+		input.setPadding(8, 12, 8, 12);
     	input.addTextChangedListener(new el());
+    	Button menu_btn = (Button)findViewById(R.id.chat_menu);
+    	Interface.attachButtonStyle(menu_btn);
+    	menu_btn.setPadding(24, 16, 24, 16);
+    	menu_btn.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View arg0) {
+				removeDialog(0);
+				showDialog(0);
+			}
+    	});
     	send_btn = (Button)findViewById(R.id.chat_send_button);
     	Interface.attachButtonStyle(send_btn);
     	send_btn.setPadding(24, 16, 24, 16);
@@ -364,9 +404,31 @@ public class ChatActivity extends Activity implements Callback {
     	Interface.attachButtonStyle(smiley_select_btn);
     	smiley_select_btn.setPadding(24, 16, 24, 16);
     	smiley_select_btn.setOnClickListener(new OnClickListener(){
+    		QuickAction last_selector;
 			@Override
 			public void onClick(View v) {
-				startActivityForResult(new Intent(ChatActivity.this, SmileysSelector.class), 0x1);
+				if(resources.IT_IS_TABLET){
+					last_selector = PopupBuilder.buildGrid(new smileys_adapter(), v, null, 5, 400, LayoutParams.FILL_PARENT,
+							new OnItemClickListener(){
+								@Override
+								public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+									last_selector.dismiss();
+									String received_smile_tag = ((smileys_adapter)arg0.getAdapter()).getTag(arg2);
+						    		int pos = input.getSelectionStart();
+						    		if(pos == -1) pos = 0;
+						    		String typed = input.getText().toString();
+						    		if(pos > typed.length()) pos = typed.length();
+						    		final String first_part = typed.substring(0, pos)+" "+received_smile_tag+" ";
+						    		String current_text = first_part+typed.substring(pos);
+									input.setText(current_text);
+									int cursor_pos = first_part.length();
+									input.setSelection(cursor_pos);
+								}
+						});
+					last_selector.show();
+				}else{
+					ACTIVITY.startActivityForResult(new Intent(ChatActivity.this.ACTIVITY, SmileysSelector.class), CODE_SMILE);
+				}
 			}
     	});
     	sts = (ImageView)findViewById(R.id.chat_user_sts);
@@ -408,16 +470,17 @@ public class ChatActivity extends Activity implements Callback {
 		}
 	}
     private void handleServiceConnected(){
-    	contact = service.currentChatContact;
     	contact.getHistoryObject().preloadCache();
-    	chat_adapter = new ChatAdapter(this, contact.getHistoryObject().getMessageList());
+    	chat_adapter = new ChatAdapter(this.ACTIVITY, contact.getHistoryObject().getMessageList());
     	messages_list.setAdapter(chat_adapter);
     	service.chatHdl = hdl;
     	drawChat();
+    	chat_init_callback.chatInitialized();
     }
     private void drawChat(){
 		contact.getHistoryObject().preloadCache();
     	if(contact.hasUnreadMessages()){
+    		service.removeMessageNotify(contact);
     		service.cancelPersonalMessageNotify(utilities.getHash(contact));
         	contact.setHasNoFile();
     		if(!contact.haveAuthReq()){
@@ -547,5 +610,11 @@ public class ChatActivity extends Activity implements Callback {
 				typing = false;
 			}
 		}
+	}
+	public static final boolean checkThisContactOpenedInChat(Contact contact_){
+		if(contact == null) return false;
+		if(contact_ == null) return false;
+		if(contact.getProfile().equals(contact_.profile) && contact.getID().equals(contact_.getID()) && isAnyChatOpened) return true;
+		return false;
 	}
 }

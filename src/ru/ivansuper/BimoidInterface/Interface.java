@@ -57,6 +57,7 @@ public class Interface {
 	public static final String input_pressed="input_pressed";
 	public static final String chk_normal="chk_normal";
 	public static final String chk_checked="chk_checked";
+	public static final String img_mail_box_count_back="img_mail_box_count_back";
 	//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 	private static HashMap<String, DrawableContainer> components = new HashMap<String, DrawableContainer>();
 	public static boolean initialized;
@@ -182,6 +183,10 @@ public class Interface {
 		container.bitmap = decodeBitmap(R.drawable.checkbox_on, container.rect);
 		components.put("chk_checked", container);
 		
+		container = new DrawableContainer();
+		container.bitmap = decodeBitmap(R.drawable.img_mail_box_count_back, container.rect);
+		components.put(img_mail_box_count_back, container);
+		
 		if(!current_skin.equals("#$%INTERNAL#$%")){
 			Log.e("Interface", "External skin used!");
 			File config = new File(resources.SKINS_PATH+current_skin+"/SkinConfig.bsf");
@@ -251,6 +256,7 @@ public class Interface {
 	}
 	public static Drawable getDrawable(String component, Rect rect){
 		DrawableContainer container = components.get(component);
+		container.bitmap.setDensity(0);
 		if(container.rect == null){
 			//Log.i("Interface:getDrawable()", "Rect of component "+component+" is null");
 			container.rect = new Rect(0, 0, 0, 0);

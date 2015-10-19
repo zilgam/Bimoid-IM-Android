@@ -4,6 +4,7 @@ import android.content.Context;
 
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
  
 import android.view.Gravity;
@@ -18,7 +19,7 @@ import android.widget.PopupWindow;
  
 public class CustomPopupWindow {
   protected final View anchor;
-  protected final PopupWindow window;
+  public final PopupWindow window;
   private View root;
   private Drawable background = null;
   protected final WindowManager windowManager;
@@ -52,7 +53,7 @@ public class CustomPopupWindow {
     onShow();
  
     if (background == null) {
-      window.setBackgroundDrawable(new BitmapDrawable());
+      window.setBackgroundDrawable(new ColorDrawable(0x00000000));
     } else {
       window.setBackgroundDrawable(background);
     }

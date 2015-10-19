@@ -13,9 +13,13 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 public class Locale {
+	
 	public static final int DEFAULT = 0;
 	public static final int ENGLISH = 1;
+	
 	private static HashMap<String, String> strings = new HashMap<String, String>();
+	private static int mPreparedLanguage;
+	
 	public static void prepareLocale(BufferedReader reader){
 		try {
 			strings.clear();
@@ -52,8 +56,10 @@ public class Locale {
 				prepareInternalEN();
 			}
 		}else{
-		ArrayList<Language> list = getAvailable();
-		if(current > list.size()) current = DEFAULT;
+			ArrayList<Language> list = getAvailable();
+			
+			if(current > list.size()) current = DEFAULT;
+			
 			switch(current){
 			case DEFAULT:
 				prepareInternalRU();
@@ -68,6 +74,9 @@ public class Locale {
 		try {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(resources.am.open("locale/RU.txt")));
 			prepareLocale(reader);
+			
+			mPreparedLanguage = DEFAULT;
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -76,10 +85,24 @@ public class Locale {
 		try {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(resources.am.open("locale/EN.txt")));
 			prepareLocale(reader);
+			
+			mPreparedLanguage = ENGLISH;
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
+	
+	public static final int getPreparedLanguageCode(){
+		
+		switch(mPreparedLanguage){
+		case ENGLISH: return 19;
+		}
+		
+		return 52;
+		
+	}
+	
 	public static ArrayList<Language> getAvailable(){
 		final ArrayList<Language> list = new ArrayList<Language>();
 		Language language = new Language("Русская локализация", "Русский", "Ivansuper", "locale/RU.txt", true);

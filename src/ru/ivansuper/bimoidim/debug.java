@@ -48,6 +48,7 @@ public class debug {
 				out.print("OS Version: SDK:"+android.os.Build.VERSION.SDK_INT+"/RELEASE:"+android.os.Build.VERSION.RELEASE+"\n\n");
 				out.print("Bimoid IM Version: "+resources.VERSION+"\n\n");
 				ex.printStackTrace(out);
+				Log.e("BimoidIM", "Error occured", ex);
 				out.close();
 				File marker = new File(resources.DATA_PATH+"ForceClosed.marker");
 				marker.createNewFile();

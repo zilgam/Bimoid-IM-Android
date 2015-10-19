@@ -3,6 +3,7 @@ package ru.ivansuper.bimoidproto.filetransfer;
 import java.io.File;
 import java.io.IOException;
 
+import ru.ivansuper.BimoidInterface.Interface;
 import ru.ivansuper.bimoidim.ContactListActivity;
 import ru.ivansuper.bimoidim.DialogBuilder;
 import ru.ivansuper.bimoidim.ProfilesActivity;
@@ -153,6 +154,8 @@ public class FileBrowserActivity extends Activity {
     }
 	private void initViews(){
 		list = (GridView)findViewById(R.id.file_browser_list);
+		list.setSelector(Interface.getSelector());
+		if(resources.IT_IS_TABLET) list.setNumColumns(4);
 	}
     protected Dialog onCreateDialog(final int type){
     	Dialog dialog = null;

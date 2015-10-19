@@ -6,7 +6,7 @@
   android:layout_height="fill_parent" android:paddingBottom="5sp" android:paddingTop="5sp">
     <LinearLayout android:layout_height="wrap_content" android:layout_width="fill_parent" android:gravity="center_vertical">
         <LinearLayout android:layout_marginBottom="5sp" android:layout_height="1sp" android:layout_weight="1" android:layout_width="fill_parent" android:orientation="vertical" android:layout_marginLeft="10sp" android:layout_marginRight="10sp" android:layout_gravity="center_vertical" android:layout_marginTop="5sp" android:background="#ff3a5a82"></LinearLayout>
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Category" android:shadowColor="#ff0044ff" android:shadowDx="0" android:shadowDy="0" android:shadowRadius="3" android:textColor="#ffffffff" android:textSize="20sp" android:id="@android:id/title"></TextView>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Category" android:shadowColor="#ff0044ff" android:shadowDx="0" android:shadowDy="0" android:shadowRadius="3" android:textColor="#ff3a5a82" android:textSize="20sp" android:id="@android:id/title"></TextView>
         <LinearLayout android:layout_marginBottom="5sp" android:layout_height="1sp" android:layout_weight="1" android:layout_width="fill_parent" android:orientation="vertical" android:layout_marginLeft="10sp" android:layout_marginRight="10sp" android:layout_marginTop="5sp" android:background="#ff3a5a82"></LinearLayout>
     </LinearLayout>
 </LinearLayout>

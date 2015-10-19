@@ -14,7 +14,9 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import ru.ivansuper.BimoidInterface.ColorScheme;
 import ru.ivansuper.bimoidim.ChatActivity;
+import ru.ivansuper.bimoidim.PB;
 import ru.ivansuper.bimoidim.utilities;
 import ru.ivansuper.bimoidproto.BEX;
 import ru.ivansuper.bimoidproto.BimoidProtocol;
@@ -27,11 +29,13 @@ import ru.ivansuper.socket.ByteBuffer;
 import ru.ivansuper.socket.ByteCache;
 import ru.ivansuper.socket.ClientSocketConnection;
 import ru.ivansuper.socket.ServerSocketConnection;
+import ru.ivansuper.ui.MyTextView;
 
 public class FileSender extends FileTransfer {
 	private Contact contact;
 	private Vector<File> files_to_send = new Vector<File>();
 	private long total_size;
+	private long total_sended;
 	private long current_file_size;
 	private long current_file_sended;
 	private int files_count;
@@ -150,29 +154,25 @@ public class FileSender extends FileTransfer {
 		updateChatA();
 	}
 	private void updateChat(){
-		if(ChatActivity.isAnyChatOpened){
-			if(utilities.contactEquals(contact.getProfile().svc.currentChatContact, contact)){
-				Message msg = Message.obtain(contact.getProfile().svc.svcHdl, new Runnable(){
-					@Override
-					public void run() {
-						transfer_message.updateViews();
-					}
-				});
-				contact.getProfile().svc.svcHdl.sendMessageDelayed(msg, 100);
-			}
+		if(ChatActivity.checkThisContactOpenedInChat(contact)){
+			Message msg = Message.obtain(contact.getProfile().svc.svcHdl, new Runnable(){
+				@Override
+				public void run() {
+					transfer_message.updateViews();
+				}
+			});
+			contact.getProfile().svc.svcHdl.sendMessageDelayed(msg, 100);
 		}
 	}
 	private void updateChatA(){
-		if(ChatActivity.isAnyChatOpened){
-			if(utilities.contactEquals(contact.getProfile().svc.currentChatContact, contact)){
-				Message msg = Message.obtain(contact.getProfile().svc.svcHdl, new Runnable(){
-					@Override
-					public void run() {
-						contact.getProfile().svc.refreshChat();
-					}
-				});
-				contact.getProfile().svc.svcHdl.sendMessageDelayed(msg, 100);
-			}
+		if(ChatActivity.checkThisContactOpenedInChat(contact)){
+			Message msg = Message.obtain(contact.getProfile().svc.svcHdl, new Runnable(){
+				@Override
+				public void run() {
+					contact.getProfile().svc.refreshChat();
+				}
+			});
+			contact.getProfile().svc.svcHdl.sendMessageDelayed(msg, 100);
 		}
 	}
 	@Override
@@ -206,7 +206,7 @@ public class FileSender extends FileTransfer {
 				
 			}
 			@Override
-			public void onError(int errorCode) {
+			public void onError(int errorCode, Throwable t) {
 				if(errorCode == 255){
 					if(supports_proxy){
 						contact.getProfile().sendFTControl(unique_id, contact.getID(), FileTransfer.FT_CONTROL_CODE_DIRECT_FAILED_TRY_PROXY);
@@ -261,7 +261,7 @@ public class FileSender extends FileTransfer {
 					
 				}
 				@Override
-				public void onError(int errorCode) {
+				public void onError(int errorCode, Throwable t) {
 					removeTransferFromProfile();
 					updateChatA();
 					return;
@@ -347,6 +347,7 @@ public class FileSender extends FileTransfer {
 								return;
 							}
 							current_file_sended += readed;
+							total_sended += readed;
 							if(stamp != timestamp) return;
 							byte[] data = ByteBuffer.normalizeBytes(buffer, readed);
 							if(stamp != timestamp) return;
@@ -431,6 +432,9 @@ public class FileSender extends FileTransfer {
 	public long getTotalSize(){
 		return total_size;
 	}
+	public long getTotalSended(){
+		return total_sended;
+	}
 	public view_container getContainer(){
 		return transfer_message;
 	}
@@ -443,12 +447,16 @@ public class FileSender extends FileTransfer {
 		proxy_port = port;
 	}
 	public class view_container {
-		private TextView view;
+		private MyTextView view;
+		private PB progress;
 		private Button transfer_accept;
 		private Button transfer_decline;
 		private LinearLayout transfer_buttons;
-		public void setText(TextView view){
+		public void setText(MyTextView view){
 			this.view = view;
+		}
+		public void setProgress(PB progress){
+			this.progress = progress;
 		}
 		public void setButtons(LinearLayout view){
 			this.transfer_buttons = view;
@@ -459,7 +467,7 @@ public class FileSender extends FileTransfer {
 		public void setDecline(Button decline){
 			this.transfer_decline = decline;
 		}
-		public TextView getText(){
+		public MyTextView getText(){
 			return view;
 		}
 		public LinearLayout getButtons(){
@@ -471,17 +479,28 @@ public class FileSender extends FileTransfer {
 		public Button getDecline(){
 			return transfer_decline;
 		}
+		public void detachViews(){
+			view = null;
+			progress = null;
+			transfer_buttons = null;
+			transfer_accept = null;
+			transfer_decline = null;
+		}
 		public void updateViews(){
 			if(view == null) return;
+			if(progress == null) return;
 			if(transfer_buttons == null) return;
 			if(transfer_accept == null) return;
 			if(transfer_decline == null) return;
 			//Log.i("Container", "Updating views");
 			switch(getState()){
 			case FileReceiver.STATE_WAITING:
+				progress.setVisibility(View.GONE);
 				view.setText(Locale.getString("s_file_send_initializing"));
+				view.relayout();
 				break;
 			case FileReceiver.STATE_CONNECTING:
+				progress.setVisibility(View.GONE);
 				switch(getMode()){
 				case FileReceiver.MODE_NORMAL:
 					view.setText(Locale.getString("s_file_transfer_label_1"));
@@ -493,26 +512,36 @@ public class FileSender extends FileTransfer {
 					view.setText(Locale.getString("s_file_transfer_label_3"));
 					break;
 				}
+				view.relayout();
 				break;
 			case FileReceiver.STATE_TRANSFERING:
+				progress.setVisibility(View.VISIBLE);
+				progress.setColor(ColorScheme.getColor(18));
+				progress.setMax(getTotalSize());
+				progress.setProgress(getTotalSended());
 				view.setText(utilities.match(Locale.getString("s_file_sending"), new String[]{String.valueOf(getSendingFileIndex()+1), String.valueOf(getFilesCount()), getProcessingFileName(), String.valueOf(getPercentage()), String.valueOf(getProcessingSize())}));
+				view.relayout();
 				break;
 			case FileReceiver.STATE_RECEIVED:
+				progress.setVisibility(View.GONE);
 				transfer_buttons.setVisibility(View.GONE);
 				if(getFilesCount() > 1){
 					view.setText(Locale.getString("s_files_sended"));
 				}else{
 					view.setText(utilities.match(Locale.getString("s_file_sended"), new String[]{getProcessingFileName()}));
 				}
+				view.relayout();
 				//hst.deattachTransfer();
 				break;
 			case FileReceiver.STATE_ERROR:
+				progress.setVisibility(View.GONE);
 				transfer_buttons.setVisibility(View.GONE);
 				if(canceled()){
 					view.setText(Locale.getString("s_file_sending_canceled"));
 				}else{
 					view.setText(Locale.getString("s_file_sending_error"));
 				}
+				view.relayout();
 				//hst.deattachTransfer();
 				break;
 			}

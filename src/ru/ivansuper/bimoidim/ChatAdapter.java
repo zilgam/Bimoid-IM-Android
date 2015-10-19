@@ -10,8 +10,10 @@ import ru.ivansuper.bimoidproto.filetransfer.FileReceiver;
 import ru.ivansuper.bimoidproto.filetransfer.FileReceiver.view_container;
 import ru.ivansuper.bimoidproto.filetransfer.FileSender;
 import ru.ivansuper.bimoidproto.filetransfer.FileTransfer;
+import ru.ivansuper.ui.MyTextView;
 
 import android.content.Context;
+import android.text.SpannableStringBuilder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -78,10 +80,12 @@ public class ChatAdapter extends BaseAdapter {
 		ImageView icon = (ImageView)item.findViewById(R.id.chat_item_icon);
 		TextView nick = (TextView)item.findViewById(R.id.chat_item_nick);
 		TextView date = (TextView)item.findViewById(R.id.chat_item_date);
-		TextView text = (TextView)item.findViewById(R.id.chat_item_text);
+		MyTextView text = (MyTextView)item.findViewById(R.id.chat_item_text);
+		text.setFocusable(false);
 		if(ColorScheme.initialized) nick.setShadowLayer(1f, 1f, 1f, ColorScheme.getColor(37));
 		if(ColorScheme.initialized) date.setShadowLayer(1f, 1f, 1f, ColorScheme.getColor(37));
-		LinearLayout transfer_buttons = (LinearLayout)item.findViewById(R.id.chat_item_transfer_buttons);
+		LinearLayout transfer_buttons = (LinearLayout)item.findViewById(R.id.chat_item_transfer);
+		PB transfer_progress = (PB)item.findViewById(R.id.chat_item_transfer_progress);
 		transfer_buttons.setVisibility(View.GONE);
 		Button transfer_accept = (Button)item.findViewById(R.id.chat_item_accept_btn);
 		Interface.attachButtonStyle(transfer_accept);
@@ -90,9 +94,13 @@ public class ChatAdapter extends BaseAdapter {
 		Interface.attachButtonStyle(transfer_decline);
 		date.setText(hst.formattedDate);
 		if(ColorScheme.initialized) date.setTextColor(ColorScheme.getColor(20));
-		if(hst.span_message == null) hst.span_message = SmileysManager.getSmiledText(hst.message);
+		if(hst.span_message == null){
+			hst.span_message = MyTextView.detectLinks(hst.message);
+			hst.span_message = SmileysManager.getSmiledText((SpannableStringBuilder)hst.span_message);
+		}
 		text.setText(hst.span_message);
 		if(ColorScheme.initialized) text.setLinkTextColor(ColorScheme.getColor(21));
+		text.setTextSize(14);
 		switch(hst.direction){
 		case HistoryItem.DIRECTION_INCOMING:
 			nick.setText(hst.contact.getName());
@@ -104,6 +112,7 @@ public class ChatAdapter extends BaseAdapter {
 				final FileReceiver receiver = (FileReceiver)hst.getAttachedTransfer();
 				view_container container = receiver.getContainer();
 					container.setText(text);
+					container.setProgress(transfer_progress);
 					container.setButtons(transfer_buttons);
 					container.setAccept(transfer_accept);
 					container.setDecline(transfer_decline);
@@ -137,6 +146,7 @@ public class ChatAdapter extends BaseAdapter {
 				});
 				ru.ivansuper.bimoidproto.filetransfer.FileSender.view_container container = sender.getContainer();
 				container.setText(text);
+				container.setProgress(transfer_progress);
 				container.setButtons(transfer_buttons);
 				container.setAccept(transfer_accept);
 				container.setDecline(transfer_decline);
@@ -187,6 +197,7 @@ public class ChatAdapter extends BaseAdapter {
 			//item.setBackgroundDrawable(resources.res.getDrawable(R.drawable.item_normal));
 			break;
 		}
+		text.relayout();
 		item.setPadding(0, 0, 0, 0);
 		item.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
 		return item;

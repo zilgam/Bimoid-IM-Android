@@ -9,6 +9,7 @@ public class BEX {
 	private int id = 0;
 	private int length = 0;
 	private byte[] data;
+	
 	public BEX(ByteBuffer data){
 		data.skip(5);
 		type = data.readWord();

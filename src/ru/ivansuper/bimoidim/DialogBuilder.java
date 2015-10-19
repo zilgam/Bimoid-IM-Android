@@ -19,6 +19,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 public class DialogBuilder {
@@ -266,18 +267,22 @@ public class DialogBuilder {
 		no_btn.setText(no);
 		no_btn.setOnClickListener(no_listener);
 		no_btn.setLayoutParams(llp);
+		ScrollView sv = new ScrollView(resources.ctx);
+		LinearLayout.LayoutParams lay_p = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT, 5);
+		sv.setLayoutParams(lay_p);
 		TextView txt = new TextView(resources.ctx);
 		txt.setTextSize(18);
 		txt.setTextColor(0xffffffff);
 		txt.setPadding(5, 5, 5, 5);
 		txt.setText(text);
+		ScrollView.LayoutParams sv_p = new ScrollView.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
+		txt.setLayoutParams(sv_p);
+		sv.addView(txt);
     	if(ColorScheme.initialized) txt.setTextColor(ColorScheme.getColor(12));
-		lay.addView(txt);
+		lay.addView(sv);
 		lay_.addView(yes_btn);
 		lay_.addView(no_btn);
 		lay.addView(lay_);
-		LinearLayout.LayoutParams lay_p = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT, 5);
-		lay.setLayoutParams(lay_p);
 		container.addView(lay);
     	Dialog d = new Dialog(context, style);
     	Window wnd = d.getWindow();

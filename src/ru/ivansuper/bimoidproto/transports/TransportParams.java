@@ -27,17 +27,9 @@ public class TransportParams {
 	public String name_of_account_ids = "";
 	public String default_host = "";
 	public int default_port = 0;
-	/*public static class PRES_STATUS_ONLINE{}
-	public static class PRES_STATUS_INVISIBLE{}
-	public static class PRES_STATUS_INVISIBLE_FOR_ALL{}
-	public static class PRES_STATUS_FREE_FOR_CHAT{}
-	public static class PRES_STATUS_AT_HOME{}
-	public static class PRES_STATUS_AT_WORK{}
-	public static class PRES_STATUS_LUNCH{}
-	public static class PRES_STATUS_AWAY{}
-	public static class PRES_STATUS_NOT_AVAILABLE{}
-	public static class PRES_STATUS_OCCUPIED{}
-	public static class PRES_STATUS_DO_NOT_DISTURB{}*/
+	
+	public TransportSettings mTransportSettings;
+	
 	public int[] status_wrapper;
 	public boolean additional_status_pic;
 	public int additional_status_pic_count;
@@ -170,6 +162,7 @@ public class TransportParams {
 				dos.writeBoolean(update_avatar);
 				dos.writeBoolean(offline_messages);
 				dos.writeBoolean(presence_info_req);
+				
 				final File res_dir = new File(resources.DATA_PATH+"TransportsRes/"+UUID);
 				if(!(res_dir.isDirectory() && res_dir.exists()))
 					try{
@@ -177,14 +170,18 @@ public class TransportParams {
 					}catch(Exception e){}
 				final File main_sts = new File(resources.DATA_PATH+"TransportsRes/"+UUID+"/main_sts.bin");
 				main_status_list.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(main_sts));
-				final File add_sts = new File(resources.DATA_PATH+"TransportsRes/"+UUID+"/add_sts.bin");
-				additional_status_list.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(add_sts));
+				
+				if(additional_status_pic){
+					final File add_sts = new File(resources.DATA_PATH+"TransportsRes/"+UUID+"/add_sts.bin");
+					additional_status_list.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(add_sts));
+				}
 			}catch(Exception e){
 				e.printStackTrace();
 			}
 			try{
 				if(dos != null) dos.close();
 			}catch(Exception e){}
+			
 		}
 	}
 	public static final void load(BimoidProfile profile){
@@ -234,9 +231,12 @@ public class TransportParams {
 				final File main_sts = new File(resources.DATA_PATH+"TransportsRes/"+params.UUID+"/main_sts.bin");
 				params.main_status_list = BitmapFactory.decodeStream(new FileInputStream(main_sts));
 				if(params.main_status_list == null) throw new Exception("Error occured while loading main statuses for "+params.UUID+" transport");
-				final File add_sts = new File(resources.DATA_PATH+"TransportsRes/"+params.UUID+"/add_sts.bin");
-				params.additional_status_list = BitmapFactory.decodeStream(new FileInputStream(add_sts));
-				if(params.additional_status_list == null) throw new Exception("Error occured while loading additional statuses for "+params.UUID+" transport");
+				
+				if(params.additional_status_pic){
+					final File add_sts = new File(resources.DATA_PATH+"TransportsRes/"+params.UUID+"/add_sts.bin");
+					params.additional_status_list = BitmapFactory.decodeStream(new FileInputStream(add_sts));
+				}
+				//if(params.additional_status_list == null) throw new Exception("Error occured while loading additional statuses for "+params.UUID+" transport");
 				profile.transport_params.add(params);
 			}catch(Exception e){
 				e.printStackTrace();
@@ -246,6 +246,50 @@ public class TransportParams {
 			}catch(Exception e){}
 		}
 	}
+	
+	public final void saveTransportSettings(BimoidProfile profile, Transport t){
+		
+		DataOutputStream dis = null;
+		try{
+			final String transport_id = "id_"+t.item_id;
+			
+			(new File(resources.DATA_PATH+profile.ID+"/TransportSettings/"+transport_id+"/")).mkdirs();
+			
+			dis = new DataOutputStream(new FileOutputStream(new File(resources.DATA_PATH+profile.ID+"/TransportSettings/"+transport_id+"/settings_table.bin")));
+			
+			final byte[] block = mTransportSettings.serialize(false);
+			
+			dis.writeInt(block.length);
+			dis.write(block, 0, block.length);
+			
+		}catch(Throwable t1){ t1.printStackTrace(); }
+		
+		try{ dis.close(); }catch(Throwable t1){}
+		
+	}
+	
+	public final void readTransportSettings(BimoidProfile profile, Transport t){
+		
+		DataInputStream dis = null;
+		try{
+			final String transport_id = "id_"+t.item_id;
+			
+			dis = new DataInputStream(new FileInputStream(new File(resources.DATA_PATH+profile.ID+"/TransportSettings/"+transport_id+"/settings_table.bin")));
+			
+			final int block_length = dis.readInt();
+			
+			final byte[] block = new byte[block_length];
+			
+			dis.read(block, 0, block_length);
+			
+			mTransportSettings.updateValues(block);
+			
+		}catch(Throwable t1){ }
+		
+		try{ dis.close(); }catch(Throwable t1){}
+		
+	}
+	
 	public static int getPreferedSize(){
 		int prefered_size = 0;
 		switch(resources.dm.densityDpi){
@@ -258,6 +302,9 @@ public class TransportParams {
 		case DisplayMetrics.DENSITY_HIGH:
 			prefered_size = 36;
 			break;
+		case DisplayMetrics.DENSITY_XHIGH:
+			prefered_size = 48;
+			break;
 		default:
 			prefered_size = 16;
 			break;
@@ -265,21 +312,7 @@ public class TransportParams {
 		return prefered_size;
 	}
 	public static Bitmap getBitmap(String links){
-		int prefered_size = 0;
-		switch(resources.dm.densityDpi){
-		case DisplayMetrics.DENSITY_LOW:
-			prefered_size = 16;
-			break;
-		case DisplayMetrics.DENSITY_MEDIUM:
-			prefered_size = 24;
-			break;
-		case DisplayMetrics.DENSITY_HIGH:
-			prefered_size = 36;
-			break;
-		default:
-			prefered_size = 16;
-			break;
-		}
+		int prefered_size = getPreferedSize();
 		Log.e("BitmapDownloader", "Prefered size: "+prefered_size);
 		String[] lines = links.split("\n");
 		if(lines.length < 1) return null;
@@ -291,7 +324,9 @@ public class TransportParams {
 		Log.e("BitmapDownloader", "Links: "+lines.length);
 		int max_available = 0;
 		int min_available = 100;
+		int max_available2 = 0;
 		String max_link = "";
+		String max_link2 = "";
 		String min_link = "";
 		for(int i=lines.length-1; i>=0; i--){
 			String[] params = lines[i].split(",");
@@ -301,6 +336,10 @@ public class TransportParams {
 				min_available = size;
 				min_link = params[1];
 				Log.e("BitmapDownloader", "Recorded as min");
+			}
+			if(max_available2 < size){
+				max_available2 = size;
+				max_link2 = params[1];
 			}
 			if(size > prefered_size){
 				Log.e("BitmapDownloader", "Size too big");
@@ -313,10 +352,15 @@ public class TransportParams {
 			}
 		}
 		Log.e("BitmapDownloader", "Max available: "+max_available);
-		if(max_available == 0){
-			return utilities.downloadImage(min_link);
+		Log.e("BitmapDownloader", "Global max available: "+max_available2);
+		if(max_available2 > prefered_size){
+			return utilities.downloadImage(max_link2, (float)prefered_size/max_available2);
 		}else{
-			return utilities.downloadImage(max_link);
+			if(max_available == 0){
+				return utilities.downloadImage(min_link);
+			}else{
+				return utilities.downloadImage(max_link);
+			}
 		}
 	}
 }

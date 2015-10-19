@@ -26,7 +26,7 @@
             android:drawingCacheQuality="low"
             android:paddingLeft="3sp"
             android:paddingRight="3sp"
-            android:src="@drawable/sts_online" >
+            android:src="@drawable/sts_online">
         </ImageView>
 
         <ImageView
@@ -103,6 +103,22 @@
                     android:gravity="center_vertical" >
                 </LinearLayout>
 
+                <TextView
+                    android:id="@+id/contact_item_mail_box_unreaded"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/img_mail_box_count_back"
+                    android:text="108"
+                    android:textColor="#ff444499"
+                    android:textSize="14sp" />
+
+                <ImageView
+                    android:id="@+id/contactlist_item_tasts"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawingCacheQuality="low"
+                    android:src="@drawable/sts_online" android:layout_gravity="center_vertical"/>
+
                 <ImageView
                     android:id="@+id/contactlist_item_tsts"
                     android:layout_width="wrap_content"
@@ -112,12 +128,6 @@
                     android:paddingRight="3sp"
                     android:src="@drawable/sts_online" />
 
-                <ImageView
-                    android:id="@+id/contactlist_item_tasts"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:drawingCacheQuality="low"
-                    android:src="@drawable/sts_online" />
             </LinearLayout>
 
             <TextView

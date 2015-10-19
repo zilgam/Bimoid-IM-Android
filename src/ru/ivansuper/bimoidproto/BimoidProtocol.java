@@ -5,6 +5,8 @@ import ru.ivansuper.bimoidim.Base64Coder;
 import ru.ivansuper.bimoidim.resources;
 import ru.ivansuper.bimoidim.utilities;
 import ru.ivansuper.bimoidproto.filetransfer.FileTransfer;
+import ru.ivansuper.bimoidproto.transports.TransportSettings;
+import ru.ivansuper.locale.Locale;
 import ru.ivansuper.socket.ByteBuffer;
 
 public class BimoidProtocol {
@@ -62,7 +64,7 @@ public class BimoidProtocol {
 		data.writeWTLD(tld, 0x2);
 		return BEX.createBex(seq, 0x1, 0x3, 0x0, data);
 	}
-	public static ByteBuffer createPlainTextLogin(int seq, String ID, String password) throws Exception{
+	public static ByteBuffer createPlainTextLogin(int seq, String ID, String password) throws Exception {
 		ByteBuffer data = new ByteBuffer(1024);
 		ByteBuffer tld = new ByteBuffer(512);
 		tld.writeStringUTF8(ID);
@@ -73,12 +75,14 @@ public class BimoidProtocol {
 		return BEX.createBex(seq, 0x1, 0x3, 0x0, data);
 	}
 	public static ByteBuffer createSetCaps(int seq){
+		
 		ByteBuffer data = new ByteBuffer(1024);
 		ByteBuffer tld = new ByteBuffer(512);
 		tld.writeWord(0x1);
 		tld.writeWord(0x5);
 		tld.writeWord(0x7);
 		tld.writeWord(0x8);
+		tld.writeWord(0xa);//Уведомления о почте
 		data.writeWTLD(tld, 0x1);//CAPS
 		tld = new ByteBuffer(512);
 		tld.writeWord(0x1);
@@ -94,7 +98,7 @@ public class BimoidProtocol {
 		tld.writeWord(Integer.parseInt(raw[3]));
 		data.writeWTLD(tld, 0x4);//Client version
 		tld = new ByteBuffer(2);
-		tld.writeWord(183);//RU
+		tld.writeWord(Locale.getPreparedLanguageCode());
 		data.writeWTLD(tld, 0x5);//Client language
 		tld = new ByteBuffer(512);
 		tld.writeStringUTF8("Android "+resources.OS_VERSION_STR+" ("+resources.SOFTWARE_STR+")["+resources.DEVICE_STR+"]");
@@ -102,6 +106,7 @@ public class BimoidProtocol {
 		return BEX.createBex(seq, 0x3, 0x3, 0x0, data);
 	}
 	public static ByteBuffer createSetStatus(int seq, int status, String desc, int extended_pic, String extended_desc){
+		
 		ByteBuffer data = new ByteBuffer(1024);
 		ByteBuffer tld = new ByteBuffer(512);
 		tld.writeDWord(status);
@@ -118,7 +123,7 @@ public class BimoidProtocol {
 		return BEX.createBex(seq, 0x3, 0x4, 0x0, data);
 	}
 	public static ByteBuffer createMessage(int seq, int unique_id, String account, String message, boolean need_report, int transport_id){
-		ByteBuffer data = new ByteBuffer(1024);
+		ByteBuffer data = new ByteBuffer(0x8000);
 		ByteBuffer tld = new ByteBuffer(512);
 		tld.writeStringUTF8(account);
 		data.writeWTLD(tld, 0x1);//To account
@@ -128,7 +133,7 @@ public class BimoidProtocol {
 		tld = new ByteBuffer(512);
 		tld.writeDWord(0x1);
 		data.writeWTLD(tld, 0x3);//Message type (UTF-8)
-		tld = new ByteBuffer(0x4000);
+		tld = new ByteBuffer(0x6000);
 		tld.writeStringUTF8(message);
 		data.writeWTLD(tld, 0x4);//Message data
 		if(need_report){
@@ -423,22 +428,30 @@ public class BimoidProtocol {
 		}
 		return BEX.createBex(seq, 0x7, 0x3, 0x0, data);
 	}
-	public static ByteBuffer createTP_CLI_SETTINGS(int seq, int transport_id, String password, String host, int port, int id){
+	public static ByteBuffer createTP_CLI_SETTINGS(int seq, int transport_id, String password, String host, int port, int id, TransportSettings settings){
 		ByteBuffer data = new ByteBuffer(1024);
 		ByteBuffer tld = new ByteBuffer(512);
 		tld.writeDWord(transport_id);
 		data.writeWTLD(tld, 0x1);//Transport ID
+		
 		try{
 			tld = new ByteBuffer(1024);
 			tld.writeStringUTF8(new String(Base64Coder.encode(password.getBytes("utf8"))));
 			data.writeWTLD(tld, 0x2);//Password
 		}catch(Exception e){}
+		
 		tld = new ByteBuffer(1024);
 		tld.writeStringUTF8(host);
 		data.writeWTLD(tld, 0x3);//Host
 		tld = new ByteBuffer(1024);
 		tld.writeDWord(port);
 		data.writeWTLD(tld, 0x4);//Password
+		
+		//Settings table
+		tld = new ByteBuffer();
+		tld.write(settings.serialize(true));
+		data.writeWTLD(tld, 0x5);
+		
 		return BEX.createBex(seq, 0x8, 0x4, id, data);
 	}
 	public static ByteBuffer createTP_CLI_MANAGE(int seq, int transport_id, int code, int status, int additional_status, String additional_status_description){

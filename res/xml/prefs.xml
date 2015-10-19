@@ -6,9 +6,10 @@
     
 </PreferenceScreen><PreferenceScreen android:key="ms_skins"><intent android:action="ru.ivansuper.bimoidim.SKINS"/></PreferenceScreen>
     <PreferenceScreen android:key="ms_contactlist">
-        <CheckBoxPreference android:key="ms_groups" android:defaultValue="true"></CheckBoxPreference>
+        <CheckBoxPreference android:key="ms_hide_empty_groups" android:defaultValue="false"/><CheckBoxPreference android:key="ms_groups" android:defaultValue="true"></CheckBoxPreference>
         <CheckBoxPreference android:key="ms_offline" android:defaultValue="true"></CheckBoxPreference>
         <CheckBoxPreference android:key="ms_show_addit_desc" android:defaultValue="false"></CheckBoxPreference>
+        
     </PreferenceScreen>
     <PreferenceScreen android:key="ms_notify">
         <CheckBoxPreference android:key="ms_vibro">

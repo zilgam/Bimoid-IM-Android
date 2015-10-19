@@ -245,6 +245,23 @@ public class ByteBuffer {
 			//e.printStackTrace();
 		}
 	}
+	public final void writePreLenStringUTF8(String source){
+		try{
+			ByteArrayOutputStream btOut = new ByteArrayOutputStream();
+			DataOutputStream dtOut = new DataOutputStream(btOut);
+			dtOut.writeUTF(source);
+			byte[] bt = btOut.toByteArray();
+			
+			writeWord(bt.length-2);
+			
+			System.arraycopy(bt, 2, bytes, writePos, bt.length-2);
+			writePos += bt.length-2;
+			dtOut.close();
+			btOut.close();
+		}catch(Exception e){
+			//e.printStackTrace();
+		}
+	}
 	public final void writeByteBuffer(ByteBuffer source){
 		System.arraycopy(normalizeBytes(source.bytes, source.writePos), 0, bytes, writePos, source.writePos);
 		writePos += source.writePos;

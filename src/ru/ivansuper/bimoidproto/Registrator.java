@@ -46,7 +46,7 @@ public class Registrator {
 				handleDisconnected();
 			}
 			@Override
-			public void onError(int errorCode) {
+			public void onError(int errorCode, Throwable t) {
 				Log.i("Registrator", "Error code: "+String.valueOf(errorCode));
 			}
 			@Override

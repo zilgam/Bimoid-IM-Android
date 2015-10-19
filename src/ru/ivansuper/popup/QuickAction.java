@@ -104,26 +104,26 @@ public class QuickAction extends CustomPopupWindow {
     int dyTop      = anchorRect.top;
     int dyBottom    = screenHeight - anchorRect.bottom;
  
-    boolean onTop    = (dyTop > dyBottom) ? true : false;
+    //boolean onTop    = (dyTop > dyBottom) ? true : false;
  
-    if (onTop) {
+    //if (onTop) {
       if (rootHeight > dyTop) {
     	    //Log.e("INFO", "rootHeight > dyTop");
         yPos       = 0;
         LayoutParams l   = mTrack.getLayoutParams();
-        l.height    = dyTop - anchor.getHeight();
+        l.height    = dyTop;// - anchor.getHeight();
       } else {
   	    //Log.e("INFO", "rootHeight <= dyTop");
         yPos = anchorRect.top - rootHeight;
       }
-    } else {
+    /*} else {
       yPos = anchorRect.bottom;
       
       if (rootHeight > dyBottom) { 
         LayoutParams l   = mTrack.getLayoutParams();
         l.height    = dyBottom;
       }
-    }
+    }*/
     if(xPos < 0) xPos = 0;
     //int my_x = anchorRect.left-xPos+anchor.getWidth()/2;
     //Log.i("INFO", String.valueOf(xPos));

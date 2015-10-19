@@ -22,6 +22,7 @@ import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -91,6 +92,13 @@ public class ProfilesActivity extends Activity {
     		final EditText PASS = (EditText)lay.findViewById(R.id.profile_dataview_pass);
     		if(ColorScheme.initialized) PASS.setTextColor(ColorScheme.getColor(13));
         	Interface.attachEditTextStyle(PASS);
+        	final CheckBox AUTO = (CheckBox)lay.findViewById(R.id.profile_dataview_autoconnect);
+        	AUTO.setText(Locale.getString("s_autoconnect"));
+        	if(ColorScheme.initialized) AUTO.setTextColor(ColorScheme.getColor(12));
+        	Interface.attachCheckBoxStyle(AUTO);
+        	final CheckBox SSL = (CheckBox)lay.findViewById(R.id.profile_dataview_ssl);
+        	if(ColorScheme.initialized) SSL.setTextColor(ColorScheme.getColor(12));
+        	Interface.attachCheckBoxStyle(SSL);
     		dialog = DialogBuilder.createYesNo(this, lay, Gravity.TOP, Locale.getString("s_adding"), Locale.getString("s_do_add"), Locale.getString("s_cancel"), new OnClickListener(){
     			@Override
     			public void onClick(View arg0) {
@@ -114,7 +122,7 @@ public class ProfilesActivity extends Activity {
     					Toast.makeText(ProfilesActivity.this, Locale.getString("s_add_profile_error_4"), Toast.LENGTH_LONG).show();
     					return;
     				}
-    				BimoidProfile profile = new BimoidProfile(service, id_s, pass_s);
+    				BimoidProfile profile = new BimoidProfile(service, id_s, pass_s, AUTO.isChecked(), SSL.isChecked());
     				pm.addProfile(profile);
     				fillFromPM();
     				try {
@@ -169,7 +177,16 @@ public class ProfilesActivity extends Activity {
         	Interface.attachEditTextStyle(PASS1);
     		PASS1.setText(context_profile.password);
     		PASS1.requestFocus();
-    		dialog = DialogBuilder.createYesNo(this, lay1, Gravity.TOP, Locale.getString("s_profile_correction"), Locale.getString("s_apply"), Locale.getString("s_cancel"), new OnClickListener(){
+        	final CheckBox AUTO1 = (CheckBox)lay1.findViewById(R.id.profile_dataview_autoconnect);
+        	AUTO1.setText(Locale.getString("s_autoconnect"));
+        	if(ColorScheme.initialized) AUTO1.setTextColor(ColorScheme.getColor(12));
+        	Interface.attachCheckBoxStyle(AUTO1);
+        	AUTO1.setChecked(context_profile.autoconnect);
+        	final CheckBox SSL1 = (CheckBox)lay1.findViewById(R.id.profile_dataview_ssl);
+        	if(ColorScheme.initialized) SSL1.setTextColor(ColorScheme.getColor(12));
+        	Interface.attachCheckBoxStyle(SSL1);
+        	SSL1.setChecked(context_profile.use_ssl);
+        	dialog = DialogBuilder.createYesNo(this, lay1, Gravity.TOP, Locale.getString("s_profile_correction"), Locale.getString("s_apply"), Locale.getString("s_cancel"), new OnClickListener(){
     			@Override
     			public void onClick(View arg0) {
     				String id_s = ID1.getText().toString().toLowerCase();
@@ -191,6 +208,8 @@ public class ProfilesActivity extends Activity {
     				context_profile.ID = params[0];
     				context_profile.server = params[1];
     				context_profile.password = pass_s;
+    				context_profile.autoconnect = AUTO1.isChecked();
+    				context_profile.use_ssl = SSL1.isChecked();
     				fillFromPM();
     				try {
     					pm.saveProfiles();

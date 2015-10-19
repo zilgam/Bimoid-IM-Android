@@ -11,4 +11,5 @@ public class PreferenceTable {
 	public static boolean store_history;
 	public static int ping_freq = 60;
 	public static boolean use_ping = true;
+	public static boolean hide_empty_groups;
 }

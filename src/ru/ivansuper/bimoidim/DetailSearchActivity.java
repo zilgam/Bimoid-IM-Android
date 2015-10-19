@@ -61,6 +61,7 @@ public class DetailSearchActivity extends Activity implements Callback{
 	private TextView country_preview;
 	private TextView language_preview;
 	private AccountInfoContainer context_item;
+	private BimoidProfile profile;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -115,6 +116,8 @@ public class DetailSearchActivity extends Activity implements Callback{
 	    Interface.attachBackground((LinearLayout)findViewById(R.id.detail_search_results_field), Interface.search_list_back);
     }
     private void handleServiceConnected(){
+		Intent i = getIntent();
+    	profile = service.profiles.getProfileByID(i.getStringExtra("PID"));
     	service.searchHdl = searchHdl;
     	begin_search.setOnClickListener(new OnClickListener(){
 			@Override
@@ -123,8 +126,6 @@ public class DetailSearchActivity extends Activity implements Callback{
 				progress_dialog = DialogBuilder.createProgress(DetailSearchActivity.this, Locale.getString("s_search_in_progress"), true);
 				progress_dialog.show();
 				adapter.clear();
-				Intent i = getIntent();
-				BimoidProfile profile = service.profiles.getProfileByID(i.getStringExtra("PID"));
 				if(profile == null){
 					progress_dialog.dismiss();
 					return;
@@ -385,12 +386,13 @@ public class DetailSearchActivity extends Activity implements Callback{
     		if(context_item == null) break;
     		lay = (LinearLayout)View.inflate(this, R.layout.add_contact_dialog, null);
     		if(ColorScheme.initialized){
-    			utilities.setLabel(((TextView)lay.findViewById(R.id.l1)), "s_select_profile").setTextColor(ColorScheme.getColor(12));
+    			((TextView)lay.findViewById(R.id.l1)).setVisibility(View.GONE);
     			utilities.setLabel(((TextView)lay.findViewById(R.id.l2)), "s_contact_account").setTextColor(ColorScheme.getColor(12));
     			utilities.setLabel(((TextView)lay.findViewById(R.id.l3)), "s_contact_name").setTextColor(ColorScheme.getColor(12));
     			utilities.setLabel(((TextView)lay.findViewById(R.id.l4)), "s_select_group").setTextColor(ColorScheme.getColor(12));
     		}
     		final ListView profiles = (ListView)lay.findViewById(R.id.add_contact_dialog_profiles);
+    		profiles.setVisibility(View.GONE);
     		Interface.attachBackground(profiles, Interface.list_view_back);
     		Interface.attachSelector(profiles);
     		final UAdapter adapter_a = new UAdapter();
@@ -416,7 +418,6 @@ public class DetailSearchActivity extends Activity implements Callback{
     		
     		
 			adapter_a.setSelected(0);
-			BimoidProfile profile = service.profiles.list.get(0);
 			Vector<Group> list1 = profile.getGroups();
 			adapter_b.clear();
 			adapter_b.put("["+Locale.getString("s_without_group")+"]", 0);
@@ -425,20 +426,6 @@ public class DetailSearchActivity extends Activity implements Callback{
     		
 			adapter_b.setSelected(0);
     		
-    		profiles.setOnItemClickListener(new OnItemClickListener(){
-				@Override
-				public void onItemClick(AdapterView<?> arg0, View arg1,
-						int arg2, long arg3) {
-					adapter_a.setSelected(arg2);
-					BimoidProfile profile = service.profiles.list.get(arg2);
-					Vector<Group> list = profile.getGroups();
-					adapter_b.clear();
-	    			adapter_b.put("["+Locale.getString("s_without_group")+"]", 0);
-		    		for(int i=0; i<list.size(); i++)
-		    			adapter_b.put(list.get(i).getName(), list.get(i).getItemId());
-					adapter_b.setSelected(0);
-				}
-    		});
     		groups.setOnItemClickListener(new OnItemClickListener(){
 				@Override
 				public void onItemClick(AdapterView<?> arg0, View arg1,
@@ -460,7 +447,6 @@ public class DetailSearchActivity extends Activity implements Callback{
     						if(account_.length() == 0) return;
     						String nickname__ = nickname_.getText().toString().trim();
     						if(nickname__.length() == 0) nickname__ = account_;
-    						BimoidProfile profile = service.profiles.list.get(adapter_a.getSelectedIdx());
     						int parent_id = (int)adapter_b.getItemId(adapter_b.getSelectedIdx());
     						if(profile == null) return;
     						profile.addContact(account_, nickname__, parent_id);

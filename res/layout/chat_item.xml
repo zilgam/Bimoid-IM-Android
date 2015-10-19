@@ -10,14 +10,37 @@
         <TextView android:text="TextView" android:layout_height="wrap_content" android:paddingLeft="2sp" android:id="@+id/chat_item_date" android:gravity="right" android:paddingRight="2sp" android:textSize="12sp" android:clickable="false" android:textColor="#ffdddddd" android:layout_width="wrap_content"></TextView>
     </LinearLayout>
 
-    <ru.ivansuper.bimoidim.AutoRefreshTextView
+    <ru.ivansuper.ui.MyTextView
         android:id="@+id/chat_item_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="AutoRefreshTextView" android:autoLink="web" android:clickable="false" android:focusable="false" android:focusableInTouchMode="false"/>
-    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/chat_item_transfer_buttons" android:padding="5sp">
-        <Button android:layout_height="wrap_content" android:id="@+id/chat_item_accept_btn" android:text="Принять" android:layout_weight="1" android:layout_width="fill_parent"></Button>
-        <Button android:layout_height="wrap_content" android:id="@+id/chat_item_decline_btn" android:text="Отклонить" android:layout_width="fill_parent" android:layout_weight="1"></Button>
+    <LinearLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:id="@+id/chat_item_transfer" android:padding="5sp" android:orientation="vertical">
+
+        <ru.ivansuper.bimoidim.PB
+            android:id="@+id/chat_item_transfer_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:layout_margin="3sp"/>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/chat_item_accept_btn"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Принять" />
+
+            <Button
+                android:id="@+id/chat_item_decline_btn"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Отклонить" />
+        </LinearLayout>
+
     </LinearLayout>
     
 </LinearLayout>

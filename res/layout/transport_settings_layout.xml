@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/header"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/transport_settings_panels"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/l1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5sp"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="Transport ID"
+            android:textColor="#ff3a5a82"
+            android:textSize="24sp" />
+
+        <LinearLayout
+            android:id="@+id/divider"
+            android:layout_width="fill_parent"
+            android:layout_height="1sp"
+            android:layout_marginBottom="5sp"
+            android:layout_marginLeft="10sp"
+            android:layout_marginRight="10sp"
+            android:layout_marginTop="4sp"
+            android:background="#ff3a5a82"
+            android:orientation="vertical" >
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <ru.ivansuper.ui.TabsHeaders
+        android:id="@+id/transport_settings_tabs_headers"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/img_tabs_header_back" >
+
+    </ru.ivansuper.ui.TabsHeaders>
+
+    <ru.ivansuper.ui.TabsContentHolder
+        android:id="@+id/transport_settings_tabs_content"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        android:background="@drawable/img_tabs_content_back" >
+
+    </ru.ivansuper.ui.TabsContentHolder>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/transport_settings_panels" >
+
+        <Button
+            android:id="@+id/transport_settings_ok_btn"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/button"
+            android:text="Ok" />
+
+        <Button
+            android:id="@+id/transport_settings_cancel_btn"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/button"
+            android:text="Cancel" />
+
+    </LinearLayout>
+
+</LinearLayout>

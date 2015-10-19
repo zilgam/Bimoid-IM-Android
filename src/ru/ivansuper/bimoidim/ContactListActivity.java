@@ -26,6 +26,11 @@ import ru.ivansuper.bservice.BimoidService;
 import ru.ivansuper.locale.Locale;
 import ru.ivansuper.popup.PopupBuilder;
 import ru.ivansuper.popup.QuickAction;
+import ru.ivansuper.ui.ConfigListenerView;
+import ru.ivansuper.ui.ExFragment;
+import ru.ivansuper.ui.ExFragmentManager;
+import ru.ivansuper.ui.ExFragmentManager.ExRunnable;
+import ru.ivansuper.ui.JFragmentActivity;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.Service;
@@ -45,6 +50,10 @@ import android.os.Handler.Callback;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.provider.Browser;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.text.ClipboardManager;
 import android.util.Log;
 import android.view.Gravity;
@@ -53,6 +62,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
@@ -72,9 +82,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class ContactListActivity extends Activity implements Callback, OnSharedPreferenceChangeListener {
+public class ContactListActivity extends JFragmentActivity implements Callback, OnSharedPreferenceChangeListener {
     private BimoidService service;
-    private ServiceConnection svcc;
     private ListView contacts;
     private ContactsAdapter contacts_adapter;
     private LinearLayout bottom_panel;
@@ -93,12 +102,15 @@ public class ContactListActivity extends Activity implements Callback, OnSharedP
     public static final int REINIT_INTERFACE = 6;
     public static final int SHOW_PROGRESS_DIALOG = 7;
     public static final int HIDE_PROGRESS_DIALOG = 8;
+    public static final int SHOW_ERROR_DIALOG = 9;
+	public static final int RETURN_TO_CONTACTS = 270;
     public static boolean VISIBLE = true;
     public static Vector<BufferedDialog> dialogs = new Vector<BufferedDialog>();
     private AccountInfoContainer account_info_for_display;
     private BufferedDialog dialog_for_display;
     private Dialog last_shown_dialog;
     private int roster_operation_confirm_helper;
+	private Dialog last_shown_error_dialog;
 	private Dialog last_shown_notify_dialog;
 	public boolean adding_temporary;
 	public int status_selection_mode;
@@ -108,36 +120,35 @@ public class ContactListActivity extends Activity implements Callback, OnSharedP
 	private EditText FILE_NOTE_SELECT_FILE_HELPER;
 	public boolean exiting;
 	protected QuickAction last_quick_action;
+	private boolean CURRENT_IS_CONTACTS = true;
+	private boolean ANY_CHAT_ACTIVE = false;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+		if(resources.IT_IS_TABLET) getWindow().addFlags(0x1000000);//Hardware acceleration
         setContentView(R.layout.contact_list);
         setVolumeControlStream(0x3);
         initViews();
-       	Intent svc = new Intent();
-       	svc.setClass(this, BimoidService.class);
        	service = resources.service;
-        if(resources.service == null){
-        	finish();
-        	return;
-        }
-		handleServiceConnected();
-       	/*svcc = new ServiceConnection() {
-			@Override
-			public void onServiceConnected(ComponentName arg0, IBinder arg1) {
-				service = ((BimoidService.binder)arg1).getService();
-				handleServiceConnected();
-			}
-			@Override
-			public void onServiceDisconnected(ComponentName arg0) {
-				//service = null;
-			}
-       	};*/
-        //svc = new Intent();
-       	//svc.setClass(this, BimoidService.class);
-        //bindService(svc, svcc, 0);
         sp = PreferenceManager.getDefaultSharedPreferences(this);
         sp.registerOnSharedPreferenceChangeListener(this);
+		handleServiceConnected();
+		checkLogs();
+		Intent i = getIntent();
+		proceedIntent(i);
+    }
+    @Override
+    public void onNewIntent(Intent i){
+    	proceedIntent(i);
+    }
+    private final void proceedIntent(Intent i){
+    	String action = i.getAction();
+    	if(action != null){
+    		if(action.startsWith("CHAT"))
+    			startFragmentChat(action);
+    	}
+    }
+    private final void checkLogs(){
         final File marker = new File(resources.DATA_PATH+"ForceClosed.marker");
         if(marker.exists()){
         	if(!resources.sd_mounted()) return;
@@ -191,12 +202,20 @@ public class ContactListActivity extends Activity implements Callback, OnSharedP
     public void onResume(){
     	VISIBLE = true;
     	super.onResume();
+    	
+    	updateUI();
+    }
+    private final void localOnResume(){
     	checkForBufferedDialogs();
     }
     private void checkForBufferedDialogs(){
     	if(dialogs.size() > 0){
     		dialog_for_display = dialogs.remove(0);
-    		showDialog(3);
+    		if(dialog_for_display.is_error){
+        		showDialog(-2);
+    		}else{
+        		showDialog(3);
+    		}
     	}
     }
     @Override
@@ -205,7 +224,13 @@ public class ContactListActivity extends Activity implements Callback, OnSharedP
     	super.onPause();
     }
     @Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+	protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+    	ExFragmentManager.executeEvent(new ExRunnable(){
+			@Override
+			public void run() {
+				fragment.onActivityResult(requestCode, resultCode, data);
+			}
+    	});
     	if(requestCode == 0){
     		if(resultCode == RESULT_OK){
     			FILE_NOTE_SELECT_FILE_HELPER.setText(data.getAction());
@@ -218,7 +243,16 @@ public class ContactListActivity extends Activity implements Callback, OnSharedP
     	if(event.getAction() == KeyEvent.ACTION_DOWN){
     		switch(keyCode){
     		case KeyEvent.KEYCODE_BACK:
-    			onBackDown();
+				if(CURRENT_IS_CONTACTS){
+					if(ANY_CHAT_ACTIVE){
+						service.handleContactlistReturnToContacts();
+					}else{
+						finish();
+					}
+				}else{
+					CURRENT_IS_CONTACTS = true;
+					updateUI();
+				}
     			break;
     		case KeyEvent.KEYCODE_MENU:
         		removeDialog(2);
@@ -228,10 +262,16 @@ public class ContactListActivity extends Activity implements Callback, OnSharedP
     	}
     	return false;
     }
-    private void onBackDown(){
-    	finish();
-    }
     private void initViews(){
+    	ConfigListenerView clv = (ConfigListenerView)findViewById(R.id.config_listener);
+    	clv.listener = new ConfigListenerView.OnLayoutListener() {
+			@Override
+			public void onNewLayout(int w, int h, int oldw, int oldh) {
+				if(last_quick_action != null && last_quick_action.window.isShowing()){
+					last_quick_action.dismiss();
+				}
+			}
+		};
     	contacts = (ListView)findViewById(R.id.contact_list_list);
     	bottom_panel = (LinearLayout)findViewById(R.id.contact_list_bottom_panel);
     	attachInterface();
@@ -465,6 +505,28 @@ public class ContactListActivity extends Activity implements Callback, OnSharedP
     protected Dialog onCreateDialog(final int type){
     	Dialog dialog = null;
     	switch(type){
+    	case -0x2://Error dialog
+    		if(dialog_for_display == null) return null;
+    		final String stack = dialog_for_display.field1;
+        	dialog = DialogBuilder.createYesNo(ContactListActivity.this, Gravity.TOP,
+        			dialog_for_display.header, dialog_for_display.text+"\n----------\n"+stack, Locale.getString("s_close"), Locale.getString("s_do_copy"),
+        			 new OnClickListener(){
+    					@Override
+    					public void onClick(View v) {
+    						removeDialog(type);
+    					}
+    				},
+    				new OnClickListener(){
+    					@Override
+    					public void onClick(View v) {
+    						removeDialog(type);
+    						ClipboardManager cm = (ClipboardManager)getSystemService(Service.CLIPBOARD_SERVICE);
+    						cm.setText(stack);
+    						Toast.makeText(ContactListActivity.this, Locale.getString("s_copied"), Toast.LENGTH_SHORT);
+    					}
+    				});
+        	last_shown_notify_dialog = dialog;
+    		break;
     	case -0x1://Crush
         	dialog = DialogBuilder.createOk(ContactListActivity.this,
         			Locale.getString("s_information"), Locale.getString("s_force_close_info"),
@@ -580,14 +642,32 @@ public class ContactListActivity extends Activity implements Callback, OnSharedP
     		break;
     	case 0x3://Notify dialog
     		if(dialog_for_display == null) return null;
-        	dialog = DialogBuilder.createOk(ContactListActivity.this,
-        			dialog_for_display.header, dialog_for_display.text, Locale.getString("s_close"),
-        			Gravity.TOP, new OnClickListener(){
-    					@Override
-    					public void onClick(View v) {
-    						removeDialog(type);
-    					}
-    		});
+    		if(dialog_for_display.is_error){
+    			dialog = DialogBuilder.createYesNo(ContactListActivity.this, 0,
+    					dialog_for_display.header, dialog_for_display.text,
+    					Locale.getString("s_ok"), Locale.getString("s_do_copy"),
+    					new OnClickListener(){
+							@Override
+							public void onClick(View v){
+								removeDialog(type);
+							}
+    					},
+    					new OnClickListener(){
+    						@Override
+    						public void onClick(View v){
+								removeDialog(type);
+    						}
+    					});
+    		}else{
+	        	dialog = DialogBuilder.createOk(ContactListActivity.this,
+	        			dialog_for_display.header, dialog_for_display.text, Locale.getString("s_close"),
+	        			Gravity.TOP, new OnClickListener(){
+	    					@Override
+	    					public void onClick(View v) {
+	    						removeDialog(type);
+	    					}
+	    		});
+    		}
         	last_shown_notify_dialog = dialog;
    		break;
     	case 0x20://Note context
@@ -1032,7 +1112,7 @@ public class ContactListActivity extends Activity implements Callback, OnSharedP
 				@Override
 				public boolean onTouch(View arg0, MotionEvent arg1) {
 					if(arg1.getAction() == MotionEvent.ACTION_DOWN){
-			    		type_lay.setVisibility(View.GONE);
+						type_lay.setVisibility(View.GONE);
 						return true;
 					}
 					return false;
@@ -1230,6 +1310,12 @@ public class ContactListActivity extends Activity implements Callback, OnSharedP
     						BimoidProfile profile = service.profiles.list.get(adapter_a1.getSelectedIdx());
     						int parent_id = (int)adapter_b1.getItemId(adapter_b1.getSelectedIdx());
     						if(profile == null) return;
+    						if(profile.noteNameExist(name_)){
+    							Toast t = Toast.makeText(ContactListActivity.this, Locale.getString("s_note_elready_exist"), Toast.LENGTH_LONG);
+    							t.setGravity(Gravity.TOP, 0, 0);
+    							t.show();
+    							return;
+    						}
     						if(modify){
     							context_note.profile.modifyNote(context_note.item_id, parent_id, name_, text_, (byte)selected_type.VALUE, context_note.TIMESTAMP);
     						}else{
@@ -1734,8 +1820,11 @@ public class ContactListActivity extends Activity implements Callback, OnSharedP
 									showDialog(0x17);
 									break;
 								case 2:
-									removeDialog(0x19);
-									showDialog(0x19);
+									
+									TransportSettingsActivity.launch(ContactListActivity.this, context_transport);
+									
+									//removeDialog(0x19);
+									//showDialog(0x19);
 									break;
 								case 3:
 									context_transport.profile.deleteTransport(context_transport.getItemId());
@@ -1782,7 +1871,8 @@ public class ContactListActivity extends Activity implements Callback, OnSharedP
         	adapter.setPadding(10);
         	adapter.put(context_transport.params.getOnline(), Locale.getString("s_status_online"), 0);
         	for(int i=0; i<context_transport.params.status_wrapper.length; i++){
-            	adapter.put((context_transport.params.getStatus(context_transport.params.status_wrapper[i])), TransportParams.translateStatus(context_transport.params.status_wrapper[i]), context_transport.params.status_wrapper[i]);
+        		if(context_transport.params.status_wrapper[i] != 0)
+        			adapter.put((context_transport.params.getStatus(context_transport.params.status_wrapper[i])), TransportParams.translateStatus(context_transport.params.status_wrapper[i]), context_transport.params.status_wrapper[i]);
         	}
         	adapter.put(context_transport.params.getOffline(), Locale.getString("s_status_offline"), -1);
         	dialog = DialogBuilder.create(ContactListActivity.this,
@@ -1795,8 +1885,9 @@ public class ContactListActivity extends Activity implements Callback, OnSharedP
 								removeDialog(0x16);
 								if(context_transport.account_name.length() == 0 || context_transport.account_pass.length() == 0){
 									service.showToast(Locale.getString("s_transport_params_need_update"), Toast.LENGTH_SHORT);
-									removeDialog(0x19);
-									showDialog(0x19);
+						    		
+						    		TransportSettingsActivity.launch(ContactListActivity.this, context_transport);
+						    		
 									return;
 								}
 								final int status = (int)arg0.getAdapter().getItemId(arg2);
@@ -1816,62 +1907,7 @@ public class ContactListActivity extends Activity implements Callback, OnSharedP
 							}
         				});
     		break;
-    	case 0x19://Transport account edit
-        	LinearLayout taccount_data = (LinearLayout)View.inflate(this, R.layout.transport_dataview, null);
-        	final EditText taccount_pass = (EditText)taccount_data.findViewById(R.id.profile_dataview_pass);
-        	final EditText taccount_server = (EditText)taccount_data.findViewById(R.id.profile_dataview_server);
-        	final EditText taccount_port = (EditText)taccount_data.findViewById(R.id.profile_dataview_port);
-    		if(ColorScheme.initialized) taccount_pass.setTextColor(ColorScheme.getColor(13));
-    		if(ColorScheme.initialized) taccount_server.setTextColor(ColorScheme.getColor(13));
-    		if(ColorScheme.initialized) taccount_port.setTextColor(ColorScheme.getColor(13));
-    		if(ColorScheme.initialized) ((TextView)taccount_data.findViewById(R.id.l1)).setTextColor(ColorScheme.getColor(12));
-    		if(ColorScheme.initialized) ((TextView)taccount_data.findViewById(R.id.l2)).setTextColor(ColorScheme.getColor(12));
-    		if(ColorScheme.initialized) ((TextView)taccount_data.findViewById(R.id.l3)).setTextColor(ColorScheme.getColor(12));
-    		if(ColorScheme.initialized) ((TextView)taccount_data.findViewById(R.id.l4)).setTextColor(ColorScheme.getColor(12));
-        	Interface.attachEditTextStyle(taccount_pass);
-        	Interface.attachEditTextStyle(taccount_server);
-        	Interface.attachEditTextStyle(taccount_port);
-        	((TextView)taccount_data.findViewById(R.id.l1)).setText("Логин: "+context_transport.account_name);
-        	taccount_pass.setText(context_transport.account_pass);
-        	taccount_server.setText(context_transport.account_server);
-        	taccount_port.setText(String.valueOf(context_transport.account_port));
-        	dialog = DialogBuilder.createYesNo(ContactListActivity.this, taccount_data,
-        			Gravity.CENTER,
-        			Locale.getString("s_transport_params"),
-        			Locale.getString("s_do_save"),
-        			Locale.getString("s_cancel"),
-    				new OnClickListener(){
-						@Override
-						public void onClick(View arg0) {
-				        	//String login = taccount_login.getText().toString();
-				        	String pass = taccount_pass.getText().toString();
-				        	String server = taccount_server.getText().toString();
-				        	String port = taccount_port.getText().toString();
-							//if(login.trim().length() <= 0) return;
-							if(pass.length() <= 0) return;
-							if(server.trim().length() <= 0) return;
-							if(port.length() <= 0) return;
-							try{
-								int port_ = Integer.parseInt(port);
-								//context_transport.account_name = login;
-								context_transport.account_pass = pass;
-								context_transport.account_server = server;
-								context_transport.account_port = port_;
-								context_transport.profile.saveTransportAccount(context_transport);
-								context_transport.profile.updateTransportParams(context_transport);
-								//service.showToast("Настройки успешно сохранены и станут актуальны только при следующем подключении транспорта", Toast.LENGTH_LONG);
-								removeDialog(0x19);
-							}catch(Exception e){}
-						}
-        			},
-        			new OnClickListener(){
-						@Override
-						public void onClick(View v) {
-							removeDialog(0x19);
-						}
-        			});
-    		break;
-    	}
+     	}
     	last_shown_dialog = dialog;
     	dialog.setOnDismissListener(new OnDismissListener(){
 			@Override
@@ -2068,17 +2104,67 @@ public class ContactListActivity extends Activity implements Callback, OnSharedP
     		bottom_panel.addView(sts);
     	}
     }
+    private void updateUI(){
+    	if(resources.IT_IS_TABLET){
+    		findViewById(R.id.contacts_fragment).setVisibility(View.VISIBLE);
+    		if(ANY_CHAT_ACTIVE){
+    			findViewById(R.id.chat_fragment).setVisibility(View.VISIBLE);
+    			//findViewById(R.id.contactlist_list_chat_separator).setVisibility(View.VISIBLE);
+    		}else{
+    			findViewById(R.id.chat_fragment).setVisibility(View.GONE);
+    			//findViewById(R.id.contactlist_list_chat_separator).setVisibility(View.GONE);
+				findViewById(R.id.chat_fragment).setVisibility(View.GONE);
+    		}
+			localOnResume();
+    	}else{
+	    	if(CURRENT_IS_CONTACTS){
+	    		checkAndRemoveChat();
+	    		findViewById(R.id.contacts_fragment).setVisibility(View.VISIBLE);
+	    		findViewById(R.id.chat_fragment).setVisibility(View.GONE);
+				localOnResume();
+	    	}else{
+	    		findViewById(R.id.contacts_fragment).setVisibility(View.GONE);
+	    		findViewById(R.id.chat_fragment).setVisibility(View.VISIBLE);
+	    	}
+    	}
+    }
+	private void checkAndRemoveChat(){
+		removeFragment(R.id.chat_fragment);
+		ANY_CHAT_ACTIVE = false;
+	}
+    private void startChatFragment(ExFragment chat){
+		checkAndRemoveChat();
+		ANY_CHAT_ACTIVE = true;
+		if(!resources.IT_IS_TABLET) CURRENT_IS_CONTACTS = false;
+		attachFragment(R.id.chat_fragment, chat);
+    }
+    private void startFragmentChat(Contact contact){
+    	ChatActivity chat = ChatActivity.getInstance(contact, new ChatInitCallback(){
+			@Override
+			public void chatInitialized() {
+				updateUI();
+			}
+    	});
+    	startChatFragment(chat);
+    }
+    private void startFragmentChat(String scheme){
+    	ChatActivity chat = ChatActivity.getInstance(scheme, new ChatInitCallback(){
+			@Override
+			public void chatInitialized() {
+				updateUI();
+			}
+    	});
+    	startChatFragment(chat);
+    }
     private class roster_click_listener implements OnItemClickListener{
 		@Override
 		public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-			contacts_adapter.notifyDataSetChanged();
+			if(!CURRENT_IS_CONTACTS) return;
 			RosterItem item = contacts_adapter.getItem(arg2);
 			switch(item.type){
 			case RosterItem.OBIMP_CONTACT:
-				service.currentChatContact = (Contact)item;
-				Intent i = new Intent(ContactListActivity.this, ChatActivity.class);
-				service.putIntoOpened((Contact)item);
-				startActivity(i);
+				startFragmentChat((Contact)item);
+				//service.putIntoOpened((Contact)item);
 				break;
 			case RosterItem.OBIMP_GROUP:
 				Group group = (Group)item;
@@ -2153,8 +2239,8 @@ public class ContactListActivity extends Activity implements Callback, OnSharedP
 				break;
 			}
 		}
-    }
-    private class roster_long_click_listener implements OnItemLongClickListener{
+	}
+	private class roster_long_click_listener implements OnItemLongClickListener{
 		@Override
 		public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
 				int arg2, long arg3) {
@@ -2204,8 +2290,28 @@ public class ContactListActivity extends Activity implements Callback, OnSharedP
 		case BUILD_BOTTOM_PANEL:
 			buildBottomPanel();
 			break;
-		case SHOW_INFO_DIALOG:
+		case SHOW_ERROR_DIALOG:
 			BufferedDialog bd = (BufferedDialog)msg.obj;
+			if(VISIBLE){
+				if(last_shown_error_dialog != null){
+					if(last_shown_error_dialog.isShowing()){
+						dialogs.add(bd);
+					}else{
+						dialog_for_display = bd;
+						removeDialog(-2);
+						showDialog(-2);
+					}
+				}else{
+					dialog_for_display = bd;
+					removeDialog(-2);
+					showDialog(-2);
+				}
+			}else{
+				dialogs.add(bd);
+			}
+			break;
+		case SHOW_INFO_DIALOG:
+			bd = (BufferedDialog)msg.obj;
 			if(VISIBLE){
 				if(last_shown_notify_dialog != null){
 					if(last_shown_notify_dialog.isShowing()){
@@ -2246,6 +2352,15 @@ public class ContactListActivity extends Activity implements Callback, OnSharedP
 			break;
 		case HIDE_PROGRESS_DIALOG:
 			if(progress_dialog != null) progress_dialog.dismiss();
+			break;
+		case RETURN_TO_CONTACTS:
+			if(!CURRENT_IS_CONTACTS){
+				CURRENT_IS_CONTACTS = true;
+				updateUI();
+			}else{
+				checkAndRemoveChat();
+				updateUI();
+			}
 			break;
 		}
 		return false;

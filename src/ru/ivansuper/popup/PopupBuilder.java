@@ -25,6 +25,8 @@ public class PopupBuilder {
 		list.setAlwaysDrawnWithCacheEnabled(false);
 		list.setBackgroundColor(0x00000000);
 		list.setCacheColorHint(0x00000000);
+		list.setDrawingCacheEnabled(false);
+		list.setWillNotCacheDrawing(true);
 		list.setOnItemClickListener(listener);
 		list.setLayoutParams(new LinearLayout.LayoutParams((int)width, (int)height));
 		Interface.attachSelector(list);
@@ -34,12 +36,12 @@ public class PopupBuilder {
 	}
 	public static final QuickAction buildGrid(BaseAdapter adapter, View on_who, String header, int columns_num, float width, float height, OnItemClickListener listener){
 		final GridView grid = new GridView(resources.ctx);
-		grid.setDrawingCacheEnabled(false);
-		grid.setWillNotCacheDrawing(true);
 		grid.setNumColumns(columns_num);
 		grid.setAdapter(adapter);
 		grid.setBackgroundColor(0x00000000);
-		//grid.setCacheColorHint(0x00000000);
+		grid.setCacheColorHint(0x00000000);
+		grid.setDrawingCacheEnabled(false);
+		grid.setWillNotCacheDrawing(true);
 		grid.setVerticalSpacing(0);
 		grid.setHorizontalSpacing(0);
 		grid.setStretchMode(GridView.STRETCH_COLUMN_WIDTH);

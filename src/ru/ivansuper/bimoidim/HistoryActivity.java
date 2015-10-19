@@ -42,6 +42,7 @@ public class HistoryActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+		if(resources.IT_IS_TABLET) getWindow().addFlags(0x1000000);//Hardware acceleration
         setContentView(R.layout.history);
         setVolumeControlStream(0x3);
         initViews();

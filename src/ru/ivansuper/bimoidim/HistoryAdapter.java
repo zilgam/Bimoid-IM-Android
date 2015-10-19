@@ -10,6 +10,7 @@ import ru.ivansuper.bimoidproto.filetransfer.FileReceiver;
 import ru.ivansuper.bimoidproto.filetransfer.FileReceiver.view_container;
 import ru.ivansuper.bimoidproto.filetransfer.FileSender;
 import ru.ivansuper.bimoidproto.filetransfer.FileTransfer;
+import ru.ivansuper.ui.MyTextView;
 
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -61,21 +62,6 @@ public class HistoryAdapter extends BaseAdapter {
 			if(a.contains(pattern)) filtered_list.add(item);
 		}
 	}
-	public void selectMatches(String pattern, TextView view){
-		if(pattern == null || pattern.length() == 0) return;
-		final int pattern_length = pattern.length();
-		String text = view.getText().toString();
-		SpannableStringBuilder ssb = new SpannableStringBuilder(text);
-		text = text.toLowerCase();
-		int idx = 0;
-		while(true){
-			idx = text.indexOf(pattern, idx);
-			if(idx == -1) break;
-			ssb.setSpan(new BackgroundColorSpan(0x7700ff00), idx, idx+pattern_length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-			idx += pattern_length;
-		}
-		view.setText(ssb);
-	}
 	@Override
 	public HistoryItemA getItem(int arg0) {
 		if(filtered){
@@ -113,13 +99,14 @@ public class HistoryAdapter extends BaseAdapter {
 		ImageView icon = (ImageView)item.findViewById(R.id.chat_item_icon);
 		TextView nick = (TextView)item.findViewById(R.id.chat_item_nick);
 		TextView date = (TextView)item.findViewById(R.id.chat_item_date);
-		TextView text = (TextView)item.findViewById(R.id.chat_item_text);
-		LinearLayout transfer_buttons = (LinearLayout)item.findViewById(R.id.chat_item_transfer_buttons);
+		MyTextView text = (MyTextView)item.findViewById(R.id.chat_item_text);
+		text.setTextSize(14);
+		LinearLayout transfer_buttons = (LinearLayout)item.findViewById(R.id.chat_item_transfer);
 		transfer_buttons.setVisibility(View.GONE);
 		date.setText(hst.formattedDate);
 		if(ColorScheme.initialized) date.setTextColor(ColorScheme.getColor(20));
 		text.setText(hst.message);
-		selectMatches(pattern, text);
+		text.selectMatches(pattern);
 		if(ColorScheme.initialized) text.setLinkTextColor(ColorScheme.getColor(21));
 		switch(hst.direction){
 		case HistoryItemA.DIRECTION_INCOMING:
@@ -157,6 +144,8 @@ public class HistoryAdapter extends BaseAdapter {
 			if(ColorScheme.initialized) item.setBackgroundColor(ColorScheme.getColor(36));
 			break;
 		}
+		text.relayout();
+		item.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
 		return item;
 	}
 }

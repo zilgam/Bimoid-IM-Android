@@ -1,5 +1,7 @@
 package ru.ivansuper.bimoidim;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -149,7 +151,8 @@ public class utilities {
 		}
 	}
 	public static int getHash(Contact contact){
-		return (contact.getID()+contact.getProfile().ID).hashCode()-0xffff;
+		if(contact == null) return 0;
+		return (contact.getID()+contact.getTransportId()+contact.getProfile().ID).hashCode()-0xffff;
 	}
 	public static boolean contactEquals(Contact contact, Contact contact_){
 		if(contact == null) return false;
@@ -172,6 +175,26 @@ public class utilities {
 			Log.e("HTTPResponse", ""+c.getResponseCode());
 			if(c.getResponseCode() == HttpURLConnection.HTTP_OK){
 				final Bitmap bitmap = BitmapFactory.decodeStream(c.getInputStream());
+				bitmap.setDensity(0);
+				return bitmap;
+			}else{
+				return null;
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+			Log.e("HTTPResponse", "Error occured!"+e.getMessage());
+		}
+		return null;
+	}
+	public static final Bitmap downloadImage(String address, float scale_factor){
+		try{
+			address = address.substring(address.indexOf("http://"));
+	        URL url = new URL(address);
+			HttpURLConnection c = (HttpURLConnection)url.openConnection();
+			Log.e("HTTPResponse", ""+c.getResponseCode());
+			if(c.getResponseCode() == HttpURLConnection.HTTP_OK){
+				Bitmap bitmap = BitmapFactory.decodeStream(c.getInputStream());
+				bitmap = Bitmap.createScaledBitmap(bitmap, (int)(bitmap.getWidth()*scale_factor), (int)(bitmap.getHeight()*scale_factor), true);
 				bitmap.setDensity(0);
 				return bitmap;
 			}else{
@@ -234,5 +257,13 @@ public class utilities {
 	public static final TextView setLabel(TextView view, String text){
 		view.setText(Locale.getString(text));
 		return view;
+	}
+	public static final String getStackTraceString(Throwable tr) {
+		if (tr == null) return ""; 
+		StringWriter sw = new StringWriter();
+		PrintWriter pw = new PrintWriter(sw);
+		tr.printStackTrace(pw);
+		String result = sw.toString();
+		return result.trim(); 
 	}
 }

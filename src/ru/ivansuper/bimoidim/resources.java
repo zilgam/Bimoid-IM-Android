@@ -12,6 +12,7 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Environment;
 import android.util.DisplayMetrics;
+import android.util.Log;
 
 public class resources {
 	public static BimoidService service;
@@ -46,6 +47,7 @@ public class resources {
 	public static String OS_VERSION_STR;
 	public static String DEVICE_STR;
 	public static String SOFTWARE_STR;
+	public static boolean IT_IS_TABLET;
 	public static void init(Context context){
 		if(ctx != null) return;
 		ctx = context;
@@ -84,6 +86,7 @@ public class resources {
 		OS_VERSION_STR = android.os.Build.VERSION.RELEASE;
 		DEVICE_STR = utilities.compute(android.os.Build.BRAND, android.os.Build.MODEL);
 		SOFTWARE_STR = android.os.Build.ID;
+		IT_IS_TABLET = isTablet();
 		res = ctx.getResources();
 		sts_online = res.getDrawable(R.drawable.sts_online);
 		sts_chat = res.getDrawable(R.drawable.sts_chat);
@@ -153,4 +156,19 @@ public class resources {
 			return false;
 		}
 	}
+	public static boolean isTablet() { 
+	    try { 
+	        // Compute screen size 
+	        DisplayMetrics dm = ctx.getResources().getDisplayMetrics(); 
+	        float screenWidth  = dm.widthPixels / dm.densityDpi;
+	        float screenHeight = dm.heightPixels / dm.densityDpi; 
+	        double size = Math.sqrt(Math.pow(screenWidth, 2) + 
+	                                Math.pow(screenHeight, 2)); 
+	        Log.e("ScreenSize", ""+size);
+	        return size >= 6; 
+	    } catch(Throwable t) { 
+	        Log.e("resources", "Failed to compute screen size", t); 
+	        return false; 
+	    } 
+	} 
 }

@@ -15,6 +15,7 @@ import ru.ivansuper.bimoidim.PreferenceTable;
 import ru.ivansuper.bimoidim.ProfilesManager;
 import ru.ivansuper.bimoidim.R;
 import ru.ivansuper.bimoidim.main;
+import ru.ivansuper.bimoidim.proto_utils;
 import ru.ivansuper.bimoidim.resources;
 import ru.ivansuper.bimoidim.utilities;
 import ru.ivansuper.bimoidproto.AccountInfoContainer;
@@ -64,9 +65,7 @@ public class BimoidService extends Service implements OnSharedPreferenceChangeLi
 	private Vibrator vbr;
 	private NotificationManager nm;
 	public boolean firstStart = true;
-	public ProfilesManager profiles = new ProfilesManager(this);
-	public Contact currentChatContact;
-	public Contact contactForOpenFromNotify;
+	public ProfilesManager profiles;
 	public Handler clHdl;
 	public Handler chatHdl;
 	public Handler regHdl;
@@ -204,6 +203,8 @@ public class BimoidService extends Service implements OnSharedPreferenceChangeLi
     @Override
     public void onCreate() {
 		if(resources.ctx == null) android.os.Process.killProcess(android.os.Process.myPid());
+    	svcHdl = new Handler(this);
+		if(profiles == null) profiles = new ProfilesManager(this);
     	/*SensorManager sm = (SensorManager)getSystemService(Service.SENSOR_SERVICE);
     	Sensor s = sm.getDefaultSensor(Sensor.TYPE_PROXIMITY);
     	if((sm != null) && (s != null)){
@@ -227,7 +228,6 @@ public class BimoidService extends Service implements OnSharedPreferenceChangeLi
     	prefs = PreferenceManager.getDefaultSharedPreferences(this);
     	prefs.registerOnSharedPreferenceChangeListener(this);
     	//mp = new Media(this);
-    	svcHdl = new Handler(this);
     	//Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
         nm = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
     	startForegroundCompat();
@@ -276,6 +276,7 @@ public class BimoidService extends Service implements OnSharedPreferenceChangeLi
     	PreferenceTable.addit_desc_under_nick = prefs.getBoolean("ms_show_addit_desc", false);
     	PreferenceTable.vibro = prefs.getBoolean("ms_vibro", true);
     	PreferenceTable.store_history = prefs.getBoolean("ms_store_history", true);
+    	PreferenceTable.hide_empty_groups = prefs.getBoolean("ms_hide_empty_groups", false);
     }
     @Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
@@ -289,10 +290,6 @@ public class BimoidService extends Service implements OnSharedPreferenceChangeLi
 	public void handleScreenTurnedOn() {
 		
 	}
-	private void sendMenuPressed(){
-		if(clHdl != null)
-			clHdl.sendEmptyMessage(ContactListActivity.MENU_PRESSED);
-	}
 	public void updateStatusBarIcon(){
 	    nm.notify(0xff33, getNotification());
 	}
@@ -305,6 +302,27 @@ public class BimoidService extends Service implements OnSharedPreferenceChangeLi
 		}else{
 			nm.cancel(0xffff);
 		}
+	}
+	public synchronized void putMessageNotify(final Contact contact, final String nick, final String text){
+		runOnUi(new Runnable(){
+			@Override
+			public void run() {
+				MNotification mn = new MNotification();
+			    Intent intent = new Intent(BimoidService.this, main.class);
+			    final String schema = proto_utils.getSchema(contact);
+				intent.setAction(schema);
+		    	mn.intent = intent;
+		    	mn.nick = nick;
+		    	mn.text = text;
+		    	mn.schema = schema;
+		    	NotifyManager.put(mn);
+		    	checkUnreaded();
+			}
+		});
+	}
+	public synchronized void removeMessageNotify(Contact contact){
+		NotifyManager.remove(proto_utils.getSchema(contact));
+    	checkUnreaded();
 	}
     private Notification getUnreadedNotification(MessagesDump dump) {
         CharSequence text = Locale.getString("s_has_unreaded_messages");
@@ -422,6 +440,13 @@ public class BimoidService extends Service implements OnSharedPreferenceChangeLi
 			clHdl.sendMessage(msg);
 		}
 	}
+	public void showErrorDialogInContactList(String header, String text, String error){
+		if(clHdl != null){
+			Message msg = Message.obtain(clHdl,
+					ContactListActivity.SHOW_ERROR_DIALOG, new BufferedDialog(3, header, text, error));
+			clHdl.sendMessage(msg);
+		}
+	}
 	public void showDialogInContactList(String header, String text){
 		if(clHdl != null){
 			Message msg = Message.obtain(clHdl,
@@ -439,6 +464,10 @@ public class BimoidService extends Service implements OnSharedPreferenceChangeLi
 	public void refreshRegistrationState(){
 		if(regHdl != null)
 			regHdl.sendEmptyMessage(ContactListActivity.REBUILD_LIST);
+	}
+	public void handleContactlistReturnToContacts(){
+		if(clHdl != null)
+			clHdl.sendEmptyMessage(ContactListActivity.RETURN_TO_CONTACTS);
 	}
 	public void handleIgnoreListNeedRebuild(){
 		if(ignoreHdl != null)
@@ -518,5 +547,11 @@ public class BimoidService extends Service implements OnSharedPreferenceChangeLi
 				Toast.makeText(BimoidService.this, text, length).show();
 			}
 		});
+	}
+	public final void runOnUi(Runnable task){
+		svcHdl.post(task);
+	}
+	public final void runOnUi(Runnable task, long delay){
+		svcHdl.postDelayed(task, delay);
 	}
 }

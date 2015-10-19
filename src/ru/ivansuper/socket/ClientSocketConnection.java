@@ -7,7 +7,20 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.security.KeyStore;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
+
+import ru.ivansuper.bimoidproto.BimoidProfile;
 import ru.ivansuper.bservice.BimoidService;
 
 import android.os.Handler;
@@ -30,20 +43,15 @@ public abstract class ClientSocketConnection {
 	public abstract void onConnecting();
 	public abstract void onDisconnect();
 	public abstract void onLostConnection();
-	public abstract void onError(int errorCode);
-	private BimoidService svc;
-	public Handler bexHandler;
+	public abstract void onError(int errorCode, Throwable t);
 	private int delay;
-	public ClientSocketConnection(BimoidService param){
-		svc = param;
+	private BimoidProfile profile;
+	public ClientSocketConnection(BimoidProfile profile){
+		this.profile = profile;
 	}
-	public ClientSocketConnection(BimoidService param, Handler hdl){
-		svc = param;
-		bexHandler = hdl;
+	public ClientSocketConnection(){
 	}
-	public ClientSocketConnection() {
-	}
-	private void errorOccured(){
+	private void errorOccured(Throwable t){
 		if((socket != null) && connected){
 			try {
 				socket.close();
@@ -55,7 +63,7 @@ public abstract class ClientSocketConnection {
 			socketIn.close();
 			socketOut.close();
 		} catch (Exception e) {}
-		onError(lastErrorCode);
+		onError(lastErrorCode, t);
 		onLostConnection();
 	}
 	private void errorOccuredA(){
@@ -72,13 +80,13 @@ public abstract class ClientSocketConnection {
 		try {
 			socketOut.close();
 		} catch (Exception e) {}
-		onError(lastErrorCode);
+		onError(lastErrorCode, null);
 		onDisconnect();
 	}
-	public void write(ByteBuffer source){
-		if(connected){
-			writeA(source);
-		}
+	public boolean write(ByteBuffer source){
+		if(connected)
+			return writeA(source);
+		return false;
 	}
 	public void connect(String server, int port, int delay){
 		if(!connected){
@@ -126,17 +134,19 @@ public abstract class ClientSocketConnection {
 			onDisconnect();
 		}
 	}
-	public void writeA(ByteBuffer buffer){
+	public boolean writeA(ByteBuffer buffer){
 		if(connected){
 			try {
 				socketOut.write(ByteBuffer.normalizeBytes(buffer.bytes, buffer.writePos));
 				buffer = null;
+				return true;
 			} catch (Exception e) {
 				e.printStackTrace();
 				lastErrorCode = 5;
-				errorOccured();
+				errorOccured(null);
 			}
 		}
+		return false;
 	}
 	public String getIp(){
 		InetAddress addr = socket.getLocalAddress();
@@ -150,10 +160,12 @@ public abstract class ClientSocketConnection {
 			try {
 				onConnecting();
 				sleep(delay);
+				if(profile != null && profile.use_ssl) lastPort = 7033;
 				InetSocketAddress addr = new InetSocketAddress(lastServer, lastPort);
 				socket = new Socket();
 				onSocketCreated();
 				socket.connect(addr, 7000);
+				if(profile != null && profile.use_ssl) jumpToSSL();
 				socketIn = socket.getInputStream();
 				socketOut = socket.getOutputStream();
 				connecting = false;
@@ -167,6 +179,21 @@ public abstract class ClientSocketConnection {
 				lastErrorCode = 255;
 				errorOccuredA();
 			}
+		}
+	}
+	private final void jumpToSSL(){
+		try {
+			TrustManager[] tm = new TrustManager[]{new NaiveTrustManager()};
+			SSLContext context = SSLContext.getInstance("SSL");
+			context.init(new KeyManager[0], tm, new SecureRandom());
+			System.setProperty("javax.net.ssl.trustStore", "ru.ivansuper.bimoidim.NaiveTrustManager");
+			SSLSocketFactory factory = context.getSocketFactory();
+			socket = (SSLSocket)factory.createSocket(socket, lastServer, lastPort, true);
+		} catch (Exception e) {
+			e.printStackTrace();
+			lastErrorCode = 0;
+			onError(0, e);
+			return;
 		}
 	}
 	private class connectedThread extends Thread{
@@ -188,7 +215,7 @@ public abstract class ClientSocketConnection {
 					}
 					if(!socket.isConnected()){
 						lastErrorCode = 7;
-						errorOccured();
+						errorOccured(null);
 						break;
 					}
 					try{
@@ -198,7 +225,7 @@ public abstract class ClientSocketConnection {
 							if(readed == -0x1){
 								if(connected){
 									lastErrorCode = 3;
-									errorOccured();
+									errorOccured(null);
 									enabled = false;
 								}
 							}
@@ -213,7 +240,7 @@ public abstract class ClientSocketConnection {
 							if(readed == -0x1){
 								if(connected){
 									lastErrorCode = 3;
-									errorOccured();
+									errorOccured(null);
 									enabled = false;
 								}
 							}
@@ -226,16 +253,12 @@ public abstract class ClientSocketConnection {
 							Log.e("Socket", "Invalid BEX!");
 							throw new IOException();
 						}
-						if(bexHandler == null){
-							onRawData(bex);
-						}else{
-							bexHandler.sendMessage(Message.obtain(bexHandler, 2, bex));
-						}
+						onRawData(bex);
 					}catch(IOException e) {
 						if(connected){
 							e.printStackTrace();
 							lastErrorCode = 3;
-							errorOccured();
+							errorOccured(e);
 							enabled = false;
 						}
 						continue;
@@ -243,12 +266,24 @@ public abstract class ClientSocketConnection {
 						if(connected){
 							e.printStackTrace();
 							lastErrorCode = 4;
-							errorOccured();
+							errorOccured(e);
 							enabled = false;
 						}
 						continue;
 					}
 				}
+		}
+	}
+	public final class NaiveTrustManager implements X509TrustManager {
+		@Override
+		public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+		}
+		@Override
+		public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+		}
+		@Override
+		public X509Certificate[] getAcceptedIssuers() {
+			return null;
 		}
 	}
 }

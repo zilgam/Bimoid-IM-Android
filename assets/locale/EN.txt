@@ -42,6 +42,7 @@ s_error_message_header := Error
 s_auth_request_error := Authorization request can't be empty
 s_close := Close
 s_do_quote := Quote
+s_do_open := Open
 s_do_copy := Copy
 s_do_copy_id := Copy ID
 s_copied := Copied
@@ -384,6 +385,15 @@ s_ms_store_history := Save history
 s_app_needs_to_restart := You must restart program to apply changes
 s_copy_note_name := Copy name
 s_copy_note_text := Copy text
+s_ms_hide_empty_groups := Hide empty groups
+s_note_elready_exist := Note with that name is already exist
+s_autoconnect := Autoconnect
+s_transport_settings_account_tab := Account
+s_transport_settings_server_tab := Server
+s_transport_settings_account_tab_login := Login:
+s_transport_settings_account_tab_password := Password:
+s_transport_settings_server_tab_server := Server:
+s_transport_settings_server_tab_port := Port:
 //===Additional===
 //countries
 s_country_1 :=   Afghanistan

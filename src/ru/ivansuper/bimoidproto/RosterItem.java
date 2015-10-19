@@ -46,6 +46,11 @@ public class RosterItem implements Comparable<RosterItem> {
 	public void setName(String name){
 		this.name = name;
 	}
+	public int getHash(){
+		return (""+item_id+type).hashCode();
+	}
+	public void update(RosterItem item){
+	}
 	@Override
 	public int compareTo(RosterItem contact) {
 		/*if(hasUnreadMessages && !contact.hasUnreadMessages){

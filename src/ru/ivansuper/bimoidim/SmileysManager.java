@@ -67,6 +67,23 @@ public class SmileysManager {
 	}
 	public static void loadFromAssets(){
 		float multiplier = 1;
+		switch(resources.dm.densityDpi){
+		case 120:
+			multiplier = 2f;
+			break;
+		case 160:
+			multiplier = 1.5f;
+			break;
+		case 240:
+			multiplier = 1f;
+			break;
+		case 320:
+			multiplier = 0.7f;
+			break;
+		default:
+			if(resources.dm.widthPixels < 400) multiplier = 1.5f;
+			break;
+		}
 		if(resources.dm.widthPixels < 400) multiplier = 1.5f;
 		tags.clear();
 		smileys.clear();
@@ -173,6 +190,32 @@ public class SmileysManager {
     	//Log.v("SPANNABLE_BUILDER", "PROCESSING STARTED");
     	String source = new String(text);
         SpannableStringBuilder builder = new SpannableStringBuilder(text);
+    	int sz = tags.size();
+        for (int j=0; j<sz; j++){
+        	String entry = tags.get(j);
+            int length = entry.length();
+    		int idx = 0;
+    		String plomb = getPlomb(length);
+        	while(true){
+        		idx = source.indexOf(entry, idx);
+        		if(idx < 0){
+        			break;
+        		}else{
+        			String a = source.substring(0, idx);
+        			String b = source.substring(idx+length, source.length());
+        			source = a + plomb + b;
+        			builder.setSpan(new ImageSpan(smileys.get(j)), idx, idx + length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        			idx += length-1;
+       			}
+        	}
+        }
+    	//Log.v("SPANNABLE_BUILDER", "PROCESSING COMPLETE: "+source);
+        return builder;
+    }
+    public static Spannable getSmiledText(SpannableStringBuilder text){
+    	//Log.v("SPANNABLE_BUILDER", "PROCESSING STARTED");
+    	String source = text.toString();
+        SpannableStringBuilder builder = text;
     	int sz = tags.size();
         for (int j=0; j<sz; j++){
         	String entry = tags.get(j);

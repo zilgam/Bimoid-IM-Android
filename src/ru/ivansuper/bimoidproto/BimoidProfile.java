@@ -26,9 +26,11 @@ import ru.ivansuper.bimoidim.utilities;
 import ru.ivansuper.bimoidproto.filetransfer.FileReceiver;
 import ru.ivansuper.bimoidproto.filetransfer.FileSender;
 import ru.ivansuper.bimoidproto.filetransfer.FileTransfer;
+import ru.ivansuper.bimoidproto.roster_tools.RosterComparator;
 import ru.ivansuper.bimoidproto.transports.Transport;
 import ru.ivansuper.bimoidproto.transports.TransportAccount;
 import ru.ivansuper.bimoidproto.transports.TransportParams;
+import ru.ivansuper.bimoidproto.transports.TransportSettings;
 import ru.ivansuper.bservice.BimoidService;
 import ru.ivansuper.locale.Locale;
 import ru.ivansuper.socket.ByteBuffer;
@@ -59,7 +61,7 @@ public class BimoidProfile {
 	private String ext_sts_desc = "";
 	private Vector<HistoryItem> messages_for_confirming = new Vector<HistoryItem>();
 	private File roster_database;
-	public File profile_dir;
+	private File profile_dir;
 	public boolean expanded_in_contact_list = true;
 	public String server = "bimoid.net";
 	public TransferParams ft_params = new TransferParams();
@@ -70,16 +72,20 @@ public class BimoidProfile {
 	public int max_transports;
 	public BanList banlist = new BanList();
 	private ping_thread PING_THREAD;
-	public BimoidProfile(final BimoidService svc, String id, String password){
+	public boolean autoconnect;
+	public boolean use_ssl;
+	public BimoidProfile(final BimoidService svc, String id, String password, boolean autoconnect, boolean use_ssl){
 		this.svc = svc;
 		String[] params = id.split("@");
 		ID = params[0];
 		server = params[1];
 		nickname = ID;
 		this.password = password;
+		this.autoconnect = autoconnect;
+		this.use_ssl = use_ssl;
 		extended_status = PreferenceManager.getDefaultSharedPreferences(resources.ctx).getInt(ID+"_ext_idx", 0);
-		ext_sts_desc = PreferenceManager.getDefaultSharedPreferences(resources.ctx).getString(ID+"_ext_desc_"+extended_status, "");		
-		socket = new ClientSocketConnection(svc){
+		ext_sts_desc = PreferenceManager.getDefaultSharedPreferences(resources.ctx).getString(ID+"_ext_desc_"+extended_status, "");
+		socket = new ClientSocketConnection(this){
 			@Override
 			public void onRawData(ByteBuffer data) {
 				handleRawData(data);
@@ -100,7 +106,7 @@ public class BimoidProfile {
 				handleConnectionLosted();
 			}
 			@Override
-			public void onError(int errorCode) {
+			public void onError(int errorCode, Throwable t) {
 				switch(errorCode){
 				case 1:
 					svc.showDialogInContactList(ID, Locale.getString("s_socket_error_1"));
@@ -108,11 +114,12 @@ public class BimoidProfile {
 				case 2:
 					svc.showDialogInContactList(ID, Locale.getString("s_socket_error_2"));
 					break;
-				case 3:
-					//svc.showDialogInContactList(ID+": Сеть", "Связь потеряна");
-					break;
 				case 4:
-					svc.showDialogInContactList(Locale.getString("s_information"), utilities.match(Locale.getString("s_app_error"), new String[]{ID}));
+					if(t == null){
+						svc.showDialogInContactList(Locale.getString("s_information"), utilities.match(Locale.getString("s_app_error"), new String[]{ID}));
+					}else{
+						svc.showErrorDialogInContactList(Locale.getString("s_information"), utilities.match(Locale.getString("s_app_error"), new String[]{ID}), utilities.getStackTraceString(t));
+					}
 					break;
 				}
 			}
@@ -143,6 +150,15 @@ public class BimoidProfile {
 			Log.e("ROSTER", "Can't read roster local copy!");
 		}
 		sortContactList();
+		if(this.autoconnect){
+			svc.svcHdl.postDelayed(new Runnable(){
+				@Override
+				public void run() {
+					setStatus(BimoidProtocol.PRES_STATUS_ONLINE, "");
+					connect();
+				}
+			}, 2000);
+		}
 	}
 	private void updateConnStatus(byte status){
 		this.connection_status = status;
@@ -219,6 +235,18 @@ public class BimoidProfile {
 		groups_.clear();
 		groups_.addAll(groups);
 	}
+	public Vector<Group> getChildGroups(int id){
+		final Vector<Group> list = new Vector<Group>();
+		for(int i=0; i<contacts.size(); i++){
+			RosterItem item = contacts.get(i);
+			if(item.type == RosterItem.OBIMP_GROUP){
+				if(((Group)item).getGroupId() == id){
+					list.add((Group)item);
+				}
+			}
+		}
+		return list;
+	}
 	private Vector<RosterItem> getChildGroups(int id, Vector<RosterItem> groups, int parent_level){
 		Vector<RosterItem> list = new Vector<RosterItem>();
 		for(int i=0; i<groups.size(); i++){
@@ -266,6 +294,19 @@ public class BimoidProfile {
 			}
 		}
 		Collections.sort(list);
+		return list;
+	}
+	public Vector<RosterItem> getContactsByGroup(int group_id){
+		final Vector<RosterItem> list = new Vector<RosterItem>();
+		for(int i=0; i<contacts.size(); i++){
+			RosterItem item = contacts.get(i);
+			if(item.type == RosterItem.OBIMP_CONTACT ||
+				item.type == RosterItem.CL_ITEM_TYPE_NOTE ||
+				item.type == RosterItem.TRANSPORT_ITEM){
+				if(item.group_id == group_id)
+					list.add(item);
+			}
+		}
 		return list;
 	}
 	private void handleRawData(ByteBuffer data){
@@ -346,6 +387,8 @@ public class BimoidProfile {
 			case 0x7:
 				handleServerUserOffline(bex);
 				break;
+			case 0xa:
+				handle_OBIMP_BEX_PRES_SRV_MAIL_NOTIF(bex);
 			}
 			break;
 		case 0x4:
@@ -594,7 +637,6 @@ public class BimoidProfile {
 		//Log.i("BimoidProfile", ID+": Login successful!");
 		doRequestParams();
 		getRoster();
-		send(BimoidProtocol.createSetCaps(sequence));
 	}
 	private void doRequestParams(){
 		updateConnStatus(CONN_STUDY_4);
@@ -653,7 +695,12 @@ public class BimoidProfile {
 		Transport t = getTransportByID(transport_id);
 		if(t == null) return;
 		t.ready = true;
+		
+		t.params.mTransportSettings = new TransportSettings(list.getTLD(0x2).getData());
+		t.params.readTransportSettings(this, t);
+		
 		TransportAccount a = getTransportAccount(t.account_name);
+		
 		if(a == null){
 			//t.account_name = "";
 			t.account_pass = "";
@@ -667,11 +714,11 @@ public class BimoidProfile {
 			t.account_server = a.server;
 			t.account_port = a.port;
 		}
-		userSend(BimoidProtocol.createTP_CLI_SETTINGS(sequence, transport_id, a.pass, t.params.default_host, t.params.default_port, 1));
+		userSend(BimoidProtocol.createTP_CLI_SETTINGS(sequence, transport_id, a.pass, t.account_server, t.account_port, 1, t.params.mTransportSettings));
 		svc.handleContactListNeedRebuild();
 	}
 	public void updateTransportParams(Transport t){
-		userSend(BimoidProtocol.createTP_CLI_SETTINGS(sequence, t.item_id, t.account_pass, t.account_server, t.account_port, 0));
+		userSend(BimoidProtocol.createTP_CLI_SETTINGS(sequence, t.item_id, t.account_pass, t.account_server, t.account_port, 0, t.params.mTransportSettings));
 		svc.handleContactListNeedRebuild();
 	}
 	private void handleTransportPopup(BEX bex){
@@ -810,11 +857,14 @@ public class BimoidProfile {
 		tld = list.getTLD(0x2);
 		final ByteBuffer transports = tld.getData();
 		final int count = transports.readDWord();
-		boolean exist = true;
 		boolean dont_add_params = false;
 		for(int i=0; i<count; i++){
 			final String UUID = utilities.convertToHex(transports.readBytes(16));
+			
 			TransportParams params = getTransportParamsByUUID(UUID);
+			
+			boolean exist = true;
+			
 			if(params == null){
 				params = new TransportParams();
 				exist = false;
@@ -833,11 +883,14 @@ public class BimoidProfile {
 			stld = values.getTLD(0x5);
 			params.default_port = stld.getData().readDWord();
 			stld = values.getTLD(0x6);
+			
 			final int[] statuses = new int[stld.getLength()/4];
+			
 			final ByteBuffer statuses_list = stld.getData();
 			for(int j=0; j<statuses.length; j++)
 				statuses[j] = statuses_list.readDWord();
 			params.status_wrapper = statuses;
+			
 			stld = values.getTLD(0x7);
 			params.additional_status_pic = stld.getData().readBoolean();
 			stld = values.getTLD(0x8);
@@ -878,20 +931,25 @@ public class BimoidProfile {
 			params.offline_messages = stld.getData().readBoolean();
 			stld = values.getTLD(0x1A);
 			params.presence_info_req = stld.getData().readBoolean();
+			
 			if(params.main_status_list == null || params.main_status_list.getHeight() != TransportParams.getPreferedSize()){
 				stld = values.getTLD(0x81);
 				params.main_status_list = TransportParams.getBitmap(stld.getData().readStringUTF8(stld.getLength()));
 			}
 			if(params.main_status_list == null) dont_add_params = true;
+			
+			if(params.additional_status_pic)
 			if(params.additional_status_list == null || params.main_status_list.getHeight() != TransportParams.getPreferedSize()){
 				stld = values.getTLD(0x82);
-				params.additional_status_list = TransportParams.getBitmap(stld.getData().readStringUTF8(stld.getLength()));
+				if(stld != null)
+					params.additional_status_list = TransportParams.getBitmap(stld.getData().readStringUTF8(stld.getLength()));
 			}
-			if(params.additional_status_list == null) dont_add_params = true;
-			if(!exist) if(!dont_add_params){
-				transport_params.add(params);
-				params.save(this);
-			}
+			
+			if(!exist)
+				if(!dont_add_params){
+					transport_params.add(params);
+					params.save(this);
+				}
 			//Log.e("BimoidProfile", UUID+": params parsed successful (added: "+!dont_add_params+")");
 		}
 	}
@@ -907,13 +965,13 @@ public class BimoidProfile {
 	private void handleServerRoster(BEX bex){
 		Reconnector.stop();
 		//Log.i("ROSTER", "Roster received");
-		Vector<RosterItem> temporary_contacts = getTemporaryContacts();
+		Vector<RosterItem> updated = getTemporaryContacts();
 		wTLDList list_ = new wTLDList(bex.getData(), bex.getLength());
 		wTLD roster = list_.getTLD(0x1);
 		synchronized(ContactsAdapter.LOCKER){
 			label:
 			if(roster.getType() == 0x1){
-					contacts.clear();
+					//contacts.clear();
 					ByteBuffer tld = roster.getData();
 					int items_count = tld.readDWord();
 					if(items_count == 0) break label;
@@ -951,7 +1009,7 @@ public class BimoidProfile {
 									(list.getTLD(0x5) != null), (list.getTLD(0x6) != null), this);
 							//Log.i("RosterParser", "Contact: "+account+"/"+name);
 							contact.setTransportId(transport_id);
-							contacts.add(contact);
+							updated.add(contact);
 							break;
 						case RosterItem.OBIMP_GROUP:
 							stld = list.getTLD(0x1);
@@ -959,7 +1017,7 @@ public class BimoidProfile {
 							String group_name = sdata.readStringUTF8(stld.getLength());
 							Group group = new Group(group_name, id, group_id, this);
 							//Log.i("RosterParser", "Group: "+group_name);
-							contacts.add(group);
+							updated.add(group);
 							break;
 						case RosterItem.TRANSPORT_ITEM:
 							stld = list.getTLD(0x1002);
@@ -980,7 +1038,7 @@ public class BimoidProfile {
 							transport.profile = this;
 							transport.params = getTransportParamsByUUID(UUID);
 							//Log.e("ParsingRoster", "Transport found. Name: "+friendly_name);
-							contacts.add(transport);
+							updated.add(transport);
 							break;
 						case RosterItem.CL_ITEM_TYPE_NOTE:
 							stld = list.getTLD(0x2001);
@@ -1008,14 +1066,15 @@ public class BimoidProfile {
 							note_item.TIMESTAMP = TIMESTAMP;
 							note_item.HASH = HASH;
 							//Log.e("BimoidProfile", "Parsing note item: "+note_item.name);
-							contacts.add(note_item);
+							updated.add(note_item);
 							break;
 						}
 					}
 			}
 			//Log.i("ROSTER", "Roster parsed");
 			svc.clearOpened();
-			contacts.addAll(temporary_contacts);
+			contacts = RosterComparator.getInstance().compare(contacts, updated);
+			//contacts.addAll(temporary_contacts);
 			sortContactList();
 		}
 		try {
@@ -1030,10 +1089,13 @@ public class BimoidProfile {
 		connecting = false;
 		connected = true;
 		svc.handleProfileStatusChanged();
+		svc.refreshChatUserInfo();
 		svc.handleContactListNeedRebuild();
+		send(BimoidProtocol.createSetCaps(sequence));
 		send(BimoidProtocol.createSetStatus(sequence, status, null, extended_status, ext_sts_desc));
-		send(BimoidProtocol.createDetailsRequest(sequence, ID, 0x1));
 		send(BEX.createEmptyBex(sequence, 3, 5, 0));//CLI_ACTIVATE
+		send(BimoidProtocol.createDetailsRequest(sequence, ID, 0x1));
+		
 	}
 	private void handleCL_PARAMS(BEX bex){
 		ByteBuffer data = bex.getData();
@@ -1079,7 +1141,7 @@ public class BimoidProfile {
 		contact.getHistoryObject().putMessage(hst, false);
 		contact.setHasAuth(1);
 		contact.increaseUnreadMessages();
-		if(!(utilities.contactEquals(svc.currentChatContact, contact) && ChatActivity.isAnyChatOpened)){
+		if(!ChatActivity.checkThisContactOpenedInChat(contact)){
 			svc.createAuthNotify(utilities.getHash(contact), R.drawable.auth_req, contact.getID(), reason);
 		}
 		svc.handleContactListNeedRebuild();
@@ -1120,7 +1182,7 @@ public class BimoidProfile {
 			hst.message = Locale.getString("s_contact_accept_auth");
 			contact.getHistoryObject().putMessage(hst, false);
 			svc.media.playEvent(Media.AUTH_ACCEPTED);
-			if(!(utilities.contactEquals(svc.currentChatContact, contact) && ChatActivity.isAnyChatOpened)){
+			if(!ChatActivity.checkThisContactOpenedInChat(contact)){
 				contact.auth_flag = false;
 				contact.setHasAuth(Contact.AUTH_ACCEPTED);
 				svc.createAuthNotify(utilities.getHash(contact), R.drawable.auth_acc, contact.getID(), hst.message);
@@ -1140,28 +1202,17 @@ public class BimoidProfile {
 			hst.message = Locale.getString("s_contact_decline_auth");
 			contact.getHistoryObject().putMessage(hst, false);
 			svc.media.playEvent(Media.AUTH_DENIED);
-			if(!(utilities.contactEquals(svc.currentChatContact, contact) && ChatActivity.isAnyChatOpened)){
+			if(!ChatActivity.checkThisContactOpenedInChat(contact)){
 				//contact.auth_flag = false;
 				contact.setHasAuth(Contact.AUTH_REJECTED);
 				svc.createAuthNotify(utilities.getHash(contact), R.drawable.auth_rej, contact.getID(), hst.message);
 			}
 			break;
 		}
-		if(svc.currentChatContact == null){
+		if(!ChatActivity.checkThisContactOpenedInChat(contact)){
 			contact.increaseUnreadMessages();
-			svc.handleContactListNeedRebuild();
-			return;
-		}else{
-			if(!(svc.currentChatContact.equals(contact) && ChatActivity.isAnyChatOpened)){
-				contact.increaseUnreadMessages();
-				svc.handleContactListNeedRebuild();
-			}else{
-				svc.cancelAuthNotify(utilities.getHash(contact));
-				contact.setHasNoAuth();
-				svc.handleContactListNeedRebuild();
-			}
 		}
-		svc.putIntoOpened(contact);
+		//svc.putIntoOpened(contact);
 		svc.refreshChat();
 		svc.doVibrate(150);
 		svc.handleContactListNeedRebuild();
@@ -1203,19 +1254,8 @@ public class BimoidProfile {
 		contact.auth_flag = true;
 		svc.createAuthNotify(contact.hashCode()-0xffff, R.drawable.auth_rej, contact.getID(), reason);
 		svc.media.playEvent(Media.AUTH_DENIED);
-		if(svc.currentChatContact == null){
+		if(!ChatActivity.checkThisContactOpenedInChat(contact)){
 			contact.increaseUnreadMessages();
-			svc.handleContactListNeedRebuild();
-			return;
-		}else{
-			if(!(svc.currentChatContact.equals(contact) && ChatActivity.isAnyChatOpened)){
-				contact.increaseUnreadMessages();
-				svc.handleContactListNeedRebuild();
-			}else{
-				svc.cancelAuthNotify(utilities.getHash(contact));
-				contact.setHasNoAuth();
-				svc.handleContactListNeedRebuild();
-			}
 		}
 		try {
 			saveRoster(roster_database);
@@ -1298,10 +1338,37 @@ public class BimoidProfile {
 		}else if((old_status >= 0) && (status < 0)){
 			svc.media.playEvent(Media.CONTACT_OUT);
 		}
-		if(svc.currentChatContact == null) return;
-		//if(svc.currentChatContact.equals(contact))
 		svc.refreshChatUserInfo();
 	}
+	
+	private final void handle_OBIMP_BEX_PRES_SRV_MAIL_NOTIF(BEX bex){
+		
+		final ByteBuffer data = bex.getData();
+		
+		final wTLDList list = new wTLDList(data, bex.getLength());
+		
+		try{
+			
+			final wTLD transport_id_tld = list.getTLD(0x1001);
+			if(transport_id_tld == null) return;
+			
+			final int transport_id = transport_id_tld.getData().readDWord();
+			
+			final Transport transport = getTransportByID(transport_id);
+			if(transport == null) return;
+			
+			final int total_unreaded_count = list.getTLD(0x1).getData().readDWord();
+			
+			transport.setMailBoxUnreadedCount(total_unreaded_count);
+			
+			svc.handleContactListNeedRefresh();
+			
+			//Log.e(getClass().getSimpleName(), "Mail notify received: unreaded="+total_unreaded_count);
+			
+		}catch(Throwable t){ t.printStackTrace(); }
+		
+	}
+	
 	private void handleIM_PARAMS(BEX bex){
 		ByteBuffer data = bex.getData();
 		wTLDList list = new wTLDList(data, bex.getLength());
@@ -1323,10 +1390,7 @@ public class BimoidProfile {
 		ByteBuffer data = bex.getData();
 		wTLDList list = new wTLDList(data, bex.getLength());
 		wTLD tld = list.getTLD(0x1);
-		if(tld == null){
-			//Log.e("handleUserDetails", "tld1 is null");
-			return;
-		}
+		if(tld == null) return;
 		int result_code = tld.getData().readWord();
 		if(result_code != DETAILS_RES_SUCCESS){
 			switch(result_code){
@@ -1572,18 +1636,19 @@ public class BimoidProfile {
 		svc.putIntoOpened(contact);
 		svc.refreshChat();
 		svc.doVibrate(150);
-		svc.media.playEvent(Media.INC_MSG);
 		if(list.getTLD(0x5) != null)
 			userSend(BimoidProtocol.createMessageReport(sequence, account, unique_id));
-		svc.contactForOpenFromNotify = contact;
-		if(!((utilities.contactEquals(svc.currentChatContact, contact)) && ChatActivity.isAnyChatOpened)){
+		
+		
+		final boolean is_this_chat_opened = ChatActivity.checkThisContactOpenedInChat(contact);
+		
+		if(!is_this_chat_opened){
+			svc.media.playEvent(Media.INC_MSG);
 			contact.increaseUnreadMessages();
 			svc.createPersonalMessageNotify(utilities.getHash(contact), R.drawable.inc_msg_animated, contact.getID()+"/"+contact.getName(), hst.message, contact, -1);
 			svc.handleContactListNeedRebuild();
 			svc.checkUnreaded();
 		}
-		if(!ChatActivity.isAnyChatOpened)
-			svc.currentChatContact = contact;
 	}
 	private void handleMessageReport(BEX bex){
 		ByteBuffer data = bex.getData();
@@ -1968,7 +2033,6 @@ public class BimoidProfile {
 		}
 		getOperation(bex.getID());
 	}
-	//=-=-=-=-=-=-= FILE TRANSFER CODE =-=-=-=-=-=-=
 	private void handleFT_PARAMS(BEX bex){
 		wTLDList list = new wTLDList(bex.getData(), bex.getLength());
 		wTLD tld = list.getTLD(0x5);
@@ -1978,12 +2042,14 @@ public class BimoidProfile {
 		tld = list.getTLD(0x6);
 		boolean proxy_enabled = tld.getData().readBoolean();
 		ft_params.proxy_enabled = proxy_enabled;
-		tld = list.getTLD(0x7);
-		String proxy_host = tld.getData().readStringUTF8(tld.getLength());
-		tld = list.getTLD(0x8);
-		int proxy_port = tld.getData().readDWord();
-		ft_params.proxy_host = proxy_host;
-		ft_params.proxy_port = proxy_port;
+		if(proxy_enabled){
+			tld = list.getTLD(0x7);
+			String proxy_host = tld.getData().readStringUTF8(tld.getLength());
+			tld = list.getTLD(0x8);
+			int proxy_port = tld.getData().readDWord();
+			ft_params.proxy_host = proxy_host;
+			ft_params.proxy_port = proxy_port;
+		}
 	}
 	private void handleServerIncomingFileAsk(BEX bex){
 		wTLDList list = new wTLDList(bex.getData(), bex.getLength());
@@ -2052,9 +2118,7 @@ public class BimoidProfile {
 		svc.media.playEvent(Media.INC_MSG);
 		svc.putIntoOpened(contact);
 		svc.refreshChat();
-		if(!((utilities.contactEquals(svc.currentChatContact, contact)) && ChatActivity.isAnyChatOpened)){
-			//Log.i("BimoidProfile", "Notifying user about incoming file 1");
-			//Log.i("BimoidProfile", "Notifying user about incoming file 2");
+		if(!ChatActivity.checkThisContactOpenedInChat(contact)){
 			contact.increaseUnreadMessages();
 			contact.setHasFile();
 			svc.createPersonalFileNotify(utilities.getHash(contact), R.drawable.file, contact.getID()+"/"+contact.getName(), Locale.getString("s_file_transfer"), contact, files_count);
@@ -2422,6 +2486,19 @@ public class BimoidProfile {
 			}
 		}
 	}
+	public final boolean noteNameExist(String name){
+		synchronized(ContactsAdapter.LOCKER){
+			for(int i=0; i<contacts.size(); i++){
+				RosterItem item = contacts.get(i);
+				switch(item.type){
+				case RosterItem.CL_ITEM_TYPE_NOTE:
+					if(((NoteItem)item).name.equalsIgnoreCase(name)) return true;
+					break;
+				}
+			}
+		}
+		return false;
+	}
 	public void addTransport(String login, String pass, TransportParams params){
 		if(!connected){
 			svc.showDialogInContactList(this.ID+": "+Locale.getString("s_information"), Locale.getString("s_profile_must_be_connected_notify"));
@@ -2616,17 +2693,15 @@ public class BimoidProfile {
 			return list;
 		}
 	}
-	//========
+
 	private void userSend(ByteBuffer data){
-		if(connected){
+		if(connected)
 			send(data);
-		}
 	}
 	private synchronized void send(ByteBuffer data){
-		socket.write(data);
-		//Log.e("Sequence", String.valueOf(sequence));
-		sequence += 1;
-		//if(sequence > 0xffffffff) sequence = 0x0;
+		boolean write_success = socket.write(data);
+		if(write_success) 
+			sequence++;
 	}
 	public void connect(){
 		if(!connected){
@@ -2679,6 +2754,9 @@ public class BimoidProfile {
 		try{
 			if(dos != null) dos.close();
 		}catch(Exception e){}
+		
+		t.params.saveTransportSettings(this, t);
+		
 	}
 	private TransportAccount getTransportAccount(String ID){
 		final File file = new File(resources.DATA_PATH+this.ID+"/TransportAccounts/");
@@ -2707,6 +2785,20 @@ public class BimoidProfile {
 			}
 		}
 		return null;
+	}
+	public final void getGroupPresenceInfo(RosterItem item, GroupInfo info){
+		if(item == null || info == null) return;
+		info.total = 0;
+		info.online = 0;
+		info.empty_for_display = true;
+		final Vector<RosterItem> items = getContactsByGroup(item.item_id);
+		for(RosterItem it: items){
+			info.total++;
+			if(it.type == RosterItem.OBIMP_CONTACT){
+				if(((Contact)it).getStatus() != BimoidProtocol.PRES_STATUS_OFFLINE)
+					info.online++;
+			}
+		}
 	}
 	//=======================================
 	private void saveRoster(File database) throws Exception{

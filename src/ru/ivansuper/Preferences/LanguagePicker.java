@@ -10,6 +10,7 @@ import ru.ivansuper.locale.Locale;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.preference.DialogPreference;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
@@ -17,6 +18,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -28,14 +30,19 @@ import android.widget.TextView;
 public class LanguagePicker extends DialogPreference {
 	private int current = 0;
 	private SharedPreferences manager;
+	private View lay;
 	public LanguagePicker(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		manager = PreferenceManager.getDefaultSharedPreferences(getContext());
 	}
 	@Override
 	protected View onCreateDialogView(){
-		LinearLayout lay = (LinearLayout)View.inflate(resources.ctx, R.layout.columns_picker, null);
+		lay = (LinearLayout)View.inflate(resources.ctx, R.layout.columns_picker, null);
 		return lay;
+	}
+	@Override
+	public void showDialog(Bundle state){
+		super.showDialog(state);
 	}
 	@Override
 	protected void onBindDialogView(View view) {
@@ -43,7 +50,7 @@ public class LanguagePicker extends DialogPreference {
 		current = Integer.parseInt(manager.getString(super.getKey(), String.valueOf(Locale.DEFAULT)));
 		final TextView title = (TextView)view.findViewById(R.id.l2);
 		title.setText(this.getTitle());
-		LinearLayout lay = (LinearLayout)view;
+		final LinearLayout lay = (LinearLayout)view;
 		RadioGroup rg = (RadioGroup)lay.findViewById(R.id.rg1);
 		rg.removeAllViews();
 		ArrayList<Language> list = Locale.getAvailable();

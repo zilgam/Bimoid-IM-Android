@@ -7,6 +7,7 @@ import ru.ivansuper.BimoidInterface.ColorScheme;
 import ru.ivansuper.bimoidproto.BimoidProfile;
 import ru.ivansuper.bimoidproto.Contact;
 import ru.ivansuper.bimoidproto.Group;
+import ru.ivansuper.bimoidproto.GroupInfo;
 import ru.ivansuper.bimoidproto.NoteItem;
 import ru.ivansuper.bimoidproto.PresenceDump;
 import ru.ivansuper.bimoidproto.RosterItem;
@@ -56,34 +57,50 @@ public class ContactsAdapter extends BaseAdapter {
 			builded.add(sgroup);
 			int group_idx = builded.size();
 			int online_idx = builded.size();
+			int offline_idx = builded.size();
+			int notes_idx = builded.size();
+			int transport_idx = builded.size();
 			if(!sgroup.opened) continue;
 			Vector<RosterItem> contacts = profile.getContacts();
 			for(int j=0; j<contacts.size(); j++){
 				RosterItem item = contacts.get(j);
 				if(item == null) continue;
+				
 				if(item.type == RosterItem.OBIMP_CONTACT){
 					if(((Contact)item).getPrivacy() == Contact.CL_PRIV_TYPE_IGNORE_NOT_IN_LIST) continue;
+					
 					if(((Contact)item).hasUnreadMessages()){
-						builded.insertElementAt(contacts.get(j), group_idx);
+						builded.insertElementAt(item, group_idx);
 						group_idx++;
 						online_idx++;
+						offline_idx++;
+						transport_idx++;
+						notes_idx++;
 					}else{
 						if(((Contact)item).getStatus() < 0){
-							if(PreferenceTable.show_offline)
-								builded.add(contacts.get(j));
+							if(PreferenceTable.show_offline){
+								builded.insertElementAt(contacts.get(j), offline_idx);
+								offline_idx++;
+								transport_idx++;
+								notes_idx++;
+							}
 						}else{
-							builded.insertElementAt(contacts.get(j), online_idx);
+							builded.insertElementAt(item, online_idx);
 							online_idx++;
+							offline_idx++;
+							transport_idx++;
+							notes_idx++;
 						}
 					}
 				}
 				if(item.type == RosterItem.TRANSPORT_ITEM){
-					builded.insertElementAt(contacts.get(j), online_idx);
-					online_idx++;
+					builded.insertElementAt(item, transport_idx);
+					transport_idx++;
+					notes_idx++;
 				}
 				if(item.type == RosterItem.CL_ITEM_TYPE_NOTE){
-					builded.insertElementAt(contacts.get(j), online_idx);
-					online_idx++;
+					builded.insertElementAt(item, notes_idx);
+					notes_idx++;
 				}
 			}
 		}
@@ -123,8 +140,15 @@ public class ContactsAdapter extends BaseAdapter {
 				if((item.level <= level) && skip){
 					skip = false;
 				}
+				GroupInfo info = null;
+				if(item.type == RosterItem.OBIMP_GROUP){
+					info = new GroupInfo();
+					item.profile.getGroupPresenceInfo(item, info);
+				}
 				if(!skip){
 					if(item.type == RosterItem.OBIMP_GROUP){
+						if(((Group)item).isEmptyForDisplay() && PreferenceTable.hide_empty_groups)
+							continue;
 						builded.add(contacts.get(j));
 						group_idx++;
 						online_idx++;
@@ -205,6 +229,10 @@ public class ContactsAdapter extends BaseAdapter {
 			label.setGravity(Gravity.LEFT);
 			TextView additional_status = (TextView)item.findViewById(R.id.contactlist_item_addit_desc);
 			additional_status.setVisibility(View.GONE);
+			
+			final TextView mail_box_unreaded_label = (TextView)item.findViewById(R.id.contact_item_mail_box_unreaded);
+			mail_box_unreaded_label.setVisibility(View.GONE);
+			
 			LinearLayout group_line_1 = (LinearLayout)item.findViewById(R.id.contact_list_item_group_line_1);
 			LinearLayout group_line_2 = (LinearLayout)item.findViewById(R.id.contact_list_item_group_line_2);
 			group_line_1.setVisibility(View.GONE);
@@ -350,8 +378,12 @@ public class ContactsAdapter extends BaseAdapter {
 		    	}
 		    	tsts.setVisibility(View.VISIBLE);
 		    	tests.setVisibility(View.VISIBLE);
+		    	mail_box_unreaded_label.setVisibility(transport.isMailBoxHasUnreaded()? View.VISIBLE: View.GONE);
+		    	
 		    	tsts.setImageDrawable(transport.params.getStatus(transport.status));
-		    	tests.setImageDrawable(transport.params.getAddStatus(transport.extended_status));
+		    	tests.setImageDrawable(transport.params.additional_status_pic? transport.params.getAddStatus(transport.extended_status): null);
+		    	
+		    	mail_box_unreaded_label.setText(String.valueOf(transport.getMailBoxUnreadedCount()));
 				break;
 			case RosterItem.OBIMP_GROUP:
 				Group group = (Group)i;

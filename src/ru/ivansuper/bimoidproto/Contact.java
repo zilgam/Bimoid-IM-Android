@@ -39,6 +39,16 @@ public class Contact extends RosterItem {
 		history = new ContactHistory(this);
 		type = RosterItem.OBIMP_CONTACT;
 	}
+	public void update(RosterItem item){
+		try{
+			Contact c = (Contact)item;
+			this.ID = c.ID;
+			this.group_id = c.group_id;
+			this.privacy = c.privacy;
+			this.auth_flag = c.auth_flag;
+			this.general_flag = c.general_flag;
+		}catch(Exception e){}
+	}
 	public String getID(){
 		return ID;
 	}

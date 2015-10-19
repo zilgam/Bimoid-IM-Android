@@ -2,6 +2,7 @@ package ru.ivansuper.bimoidim;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -78,29 +79,45 @@ public class AutoRefreshTextView extends TextView {
 		}
 		return span;
 	}
-	public int getCharIndexFromCoordinate(float x, float y) throws ClassCastException {
+	public int getCharIndexFromCoordinate(float x, float y) {
+	    // Offset the top padding
 	    int height = getPaddingTop();
 	    boolean need_break = false;
-	    for (int i = 0; i < getLayout().getLineCount(); i++) {
+	    final CharSequence text = getText();
+	    final Layout layout = getLayout();
+	    for (int i = 0; i < layout.getLineCount(); i++) {
 	    	if(need_break) break;
 	    	final float size = getTextSize();
 	        Rect bounds = new Rect();
-	        getLayout().getLineBounds(i, bounds);
+	        layout.getLineBounds(i, bounds);
+	        //Log.e("Bounds", i+": "+(bounds.right-bounds.left));
 	        height += bounds.height();
 	        if (height >= y) {
 	        	need_break = true;
-	            int lineStart = getLayout().getLineStart(i);
-	            int lineEnd = getLayout().getLineEnd(i);
-	            Spanned span = (Spanned) getText();
+	            int lineStart = layout.getLineStart(i);
+	            int lineEnd = layout.getLineEnd(i);
+	            //Log.e("LineLength", ""+(lineEnd - lineStart));
+	            Spanned span = (Spanned)text;
 	            MetricAffectingSpan[] sizeSpans = span.getSpans(lineStart, lineEnd, MetricAffectingSpan.class);
 	            float scaleFactor = 1;
-	            String lineSpan = getText().subSequence(lineStart, lineEnd).toString();
+            	/*final TextPaint p = new TextPaint();
+	            if ( sizeSpans != null ) {
+	                for (int j = 0; j < sizeSpans.length; j++) {
+	                    sizeSpans[j].updateMeasureState(p);
+	                    scaleFactor = p.getTextSize()/size;
+	                }
+	            }*/
+	            span = (Spanned)text.subSequence(lineStart, lineEnd);
+	            String lineSpan = text.subSequence(lineStart, lineEnd).toString();
+	            //Log.e("Line1", lineSpan);
 	            float[] widths = new float[lineSpan.length()];
 	            TextPaint paint = getPaint();
 	            paint.getTextWidths(lineSpan, widths);
 	            float width = 0;
 	            for (int j = 0; j < lineSpan.length(); j++) {
-	            	scaleFactor = getCharSize(sizeSpans, j, size, span)/size;
+	            	final float sz = getCharSize(sizeSpans, j, size, span);
+	            	//Log.e("MyTextView", "Size: "+size+"     CharSpannedSize: "+sz);
+	            	scaleFactor = sz/size;
 	                width += widths[j] * scaleFactor;
 	                if (width >= x) {
 	                    return lineStart + j;

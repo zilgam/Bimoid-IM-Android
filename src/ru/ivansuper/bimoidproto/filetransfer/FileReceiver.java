@@ -13,7 +13,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import ru.ivansuper.BimoidInterface.ColorScheme;
 import ru.ivansuper.bimoidim.ChatActivity;
+import ru.ivansuper.bimoidim.PB;
 import ru.ivansuper.bimoidim.resources;
 import ru.ivansuper.bimoidim.utilities;
 import ru.ivansuper.bimoidproto.BEX;
@@ -26,6 +28,7 @@ import ru.ivansuper.socket.ByteBuffer;
 import ru.ivansuper.socket.ByteCache;
 import ru.ivansuper.socket.ClientSocketConnection;
 import ru.ivansuper.socket.ServerSocketConnection;
+import ru.ivansuper.ui.MyTextView;
 
 public class FileReceiver extends FileTransfer {
 	private String remote_host = "";
@@ -95,7 +98,7 @@ public class FileReceiver extends FileTransfer {
 					
 				}
 				@Override
-				public void onError(int errorCode) {
+				public void onError(int errorCode, Throwable t) {
 					if(errorCode == 255)
 						handleNormalDirectError();
 				}
@@ -148,7 +151,7 @@ public class FileReceiver extends FileTransfer {
 				
 			}
 			@Override
-			public void onError(int errorCode) {
+			public void onError(int errorCode, Throwable t) {
 				if(errorCode == 255)
 					Log.i("FileReceiver", "Proxy error");
 					removeTransferFromProfile();
@@ -353,31 +356,27 @@ public class FileReceiver extends FileTransfer {
 		sequence++;
 	}
 	private void updateChat(){
-		if(ChatActivity.isAnyChatOpened){
-			if(utilities.contactEquals(contact.getProfile().svc.currentChatContact, contact)){
-				Message msg = Message.obtain(contact.getProfile().svc.svcHdl, new Runnable(){
-					@Override
-					public void run() {
-						transfer_message.updateViews();
-						//Log.i("UpdateChat", "Updating chat ...");
-					}
-				});
-				contact.getProfile().svc.svcHdl.sendMessageDelayed(msg, 100);
-			}
+		if(ChatActivity.checkThisContactOpenedInChat(contact)){
+			Message msg = Message.obtain(contact.getProfile().svc.svcHdl, new Runnable(){
+				@Override
+				public void run() {
+					transfer_message.updateViews();
+					//Log.i("UpdateChat", "Updating chat ...");
+				}
+			});
+			contact.getProfile().svc.svcHdl.sendMessageDelayed(msg, 100);
 		}
 	}
 	private void updateChatA(){
-		if(ChatActivity.isAnyChatOpened){
-			if(utilities.contactEquals(contact.getProfile().svc.currentChatContact, contact)){
-				Message msg = Message.obtain(contact.getProfile().svc.svcHdl, new Runnable(){
-					@Override
-					public void run() {
-						contact.getProfile().svc.refreshChat();
-						//Log.i("UpdateChat", "Updating chat ...");
-					}
-				});
-				contact.getProfile().svc.svcHdl.sendMessageDelayed(msg, 100);
-			}
+		if(ChatActivity.checkThisContactOpenedInChat(contact)){
+			Message msg = Message.obtain(contact.getProfile().svc.svcHdl, new Runnable(){
+				@Override
+				public void run() {
+					contact.getProfile().svc.refreshChat();
+					//Log.i("UpdateChat", "Updating chat ...");
+				}
+			});
+			contact.getProfile().svc.svcHdl.sendMessageDelayed(msg, 100);
 		}
 	}
 	public void updatePercentage(){
@@ -445,12 +444,16 @@ public class FileReceiver extends FileTransfer {
 		
 	}
 	public class view_container {
-		private TextView view;
+		private MyTextView view;
+		private PB progress;
 		private Button transfer_accept;
 		private Button transfer_decline;
 		private LinearLayout transfer_buttons;
-		public void setText(TextView view){
+		public void setText(MyTextView view){
 			this.view = view;
+		}
+		public void setProgress(PB progress){
+			this.progress = progress;
 		}
 		public void setButtons(LinearLayout view){
 			this.transfer_buttons = view;
@@ -461,7 +464,7 @@ public class FileReceiver extends FileTransfer {
 		public void setDecline(Button decline){
 			this.transfer_decline = decline;
 		}
-		public TextView getText(){
+		public MyTextView getText(){
 			return view;
 		}
 		public LinearLayout getButtons(){
@@ -473,8 +476,16 @@ public class FileReceiver extends FileTransfer {
 		public Button getDecline(){
 			return transfer_decline;
 		}
+		public void detachViews(){
+			view = null;
+			progress = null;
+			transfer_buttons = null;
+			transfer_accept = null;
+			transfer_decline = null;
+		}
 		public void updateViews(){
 			if(view == null) return;
+			if(progress == null) return;
 			if(transfer_buttons == null) return;
 			if(transfer_accept == null) return;
 			if(transfer_decline == null) return;
@@ -482,6 +493,7 @@ public class FileReceiver extends FileTransfer {
 			switch(getState()){
 			case FileReceiver.STATE_WAITING:
 				transfer_accept.setVisibility(View.VISIBLE);
+				progress.setVisibility(View.GONE);
 				break;
 			case FileReceiver.STATE_CONNECTING:
 				transfer_accept.setVisibility(View.GONE);
@@ -496,26 +508,36 @@ public class FileReceiver extends FileTransfer {
 					view.setText(Locale.getString("s_file_transfer_label_3"));
 					break;
 				}
+				view.relayout();
 				break;
 			case FileReceiver.STATE_TRANSFERING:
+				progress.setVisibility(View.VISIBLE);
+				progress.setColor(ColorScheme.getColor(18));
+				progress.setMax(getTotalSize());
+				progress.setProgress(getTotalReceived());
 				transfer_accept.setVisibility(View.GONE);
 				view.setText(utilities.match(Locale.getString("s_file_receiving"), new String[]{String.valueOf(getReceivedFilesCount()+1), String.valueOf(getFilesCount()), getProcessingFileName(), String.valueOf(getPercentage()), String.valueOf(getProcessingSize())}));
+				view.relayout();
 				break;
 			case FileReceiver.STATE_RECEIVED:
+				progress.setVisibility(View.GONE);
 				transfer_buttons.setVisibility(View.GONE);
 				if(getFilesCount() > 1){
 					view.setText(Locale.getString("s_files_received"));
 				}else{
 					view.setText(utilities.match(Locale.getString("s_file_received"), new String[]{getProcessingFileName()}));
 				}
+				view.relayout();
 				break;
 			case FileReceiver.STATE_ERROR:
+				progress.setVisibility(View.GONE);
 				transfer_buttons.setVisibility(View.GONE);
 				if(canceled()){
 					view.setText(Locale.getString("s_file_receiving_canceled"));
 				}else{
 					view.setText(Locale.getString("s_file_receiving_error"));
 				}
+				view.relayout();
 				break;
 			}
 			((LinearLayout)view.getParent()).invalidate();

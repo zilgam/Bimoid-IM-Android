@@ -31,7 +31,9 @@
         <item name="android:footerDividersEnabled">false</item>
         <item name="android:headerDividersEnabled">false</item>
         <item name="android:cacheColorHint">#00000000</item>
-    </style>
+        <item name="android:background">@drawable/contactlist_items_back</item>
+        <item name="android:padding">6sp</item>
+        </style>
     <style name="ButtonStyle" parent="@android:style/Widget.Button">
         <item name="android:textColor">#ff000000</item>
     </style>
